@@ -1,0 +1,31 @@
+<section class="space-y-6">
+	<app-page-title title="Inicio" subtitle="Resumen operativo de facturación electrónica" />
+
+	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+		@for (metric of metrics; track metric.title) {
+			<app-metric-card
+				[title]="metric.title"
+				[value]="metric.value"
+				[icon]="metric.icon"
+				[variant]="metric.variant"
+			/>
+		}
+	</div>
+
+	<app-ui-card>
+		<div class="mb-4 flex items-center justify-between">
+			<h2 class="text-lg font-semibold text-primary">Últimos comprobantes</h2>
+		</div>
+		<app-ui-table [columns]="comprobantesColumns" [rows]="comprobantesRows" statusColumnKey="estado" />
+	</app-ui-card>
+
+	<app-ui-card>
+		<div class="flex items-center gap-3">
+			<span class="h-3 w-3 rounded-full bg-emerald-500"></span>
+			<div>
+				<h3 class="text-base font-semibold text-primary">Estado SUNAT/OSE</h3>
+				<p class="text-sm text-muted">Conexión activa - Todos los servicios operativos</p>
+			</div>
+		</div>
+	</app-ui-card>
+</section>

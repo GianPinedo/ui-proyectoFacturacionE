@@ -1,0 +1,10 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+    <app-page-title [title]="title" [subtitle]="subtitle" />
+    <app-ui-button>{{ buttonLabel }}</app-ui-button>
+  </div>
+
+  <app-ui-card>
+    <app-ui-table [columns]="columns" [rows]="rows" statusColumnKey="estado" />
+  </app-ui-card>
+</section>

@@ -1,0 +1,26 @@
+<aside class="hidden h-screen w-[280px] shrink-0 border-r border-white/10 bg-primary-dark text-white lg:fixed lg:left-0 lg:top-0 lg:flex lg:flex-col">
+	<div class="flex items-center gap-3 px-6 py-6">
+		<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white/15 text-base font-bold text-white">EF</div>
+		<div>
+			<p class="text-lg font-semibold tracking-wide">E-Factzy</p>
+			<p class="text-sm font-medium text-accent">Perú</p>
+		</div>
+	</div>
+
+	<nav class="min-h-0 flex-1 space-y-1 overflow-y-auto px-4 pb-6">
+		@for (item of menuItems; track item.path) {
+			<a
+				[routerLink]="item.path"
+				routerLinkActive
+				#rla="routerLinkActive"
+				[class.bg-[#07594f]]="rla.isActive"
+				[class.text-white]="rla.isActive"
+				class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-emerald-50/80 transition hover:bg-white/8 hover:text-white"
+			>
+				<lucide-angular [img]="item.icon" [size]="18" class="text-emerald-100/80 transition" [class.text-accent]="rla.isActive" />
+				<span class="flex-1">{{ item.label }}</span>
+				<span class="h-2 w-2 rounded-full bg-accent opacity-0 transition" [class.opacity-100]="rla.isActive"></span>
+			</a>
+		}
+	</nav>
+</aside>

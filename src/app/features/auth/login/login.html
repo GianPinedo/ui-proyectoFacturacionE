@@ -1,0 +1,32 @@
+<section class="min-h-screen grid-cols-2 bg-white lg:grid">
+	<aside class="flex min-h-[320px] flex-col bg-primary p-8 text-white lg:min-h-screen lg:p-12">
+		<div class="flex items-center gap-3">
+			<div class="flex h-12 w-12 items-center justify-center rounded-full bg-white/15 font-bold">EF</div>
+			<div>
+				<p class="text-lg font-semibold">E-Factzy Perú</p>
+			</div>
+		</div>
+
+		<div class="mt-12 max-w-md lg:mt-24">
+			<h2 class="text-3xl font-semibold leading-tight">Facturación electrónica simple, rápida y conforme con SUNAT.</h2>
+			<p class="mt-4 text-sm text-emerald-50/85">Emite facturas, boletas y notas desde un solo lugar.</p>
+		</div>
+
+		<p class="mt-auto text-xs text-emerald-100/70">© 2026 E-Factzy Perú · v2.4.1</p>
+	</aside>
+
+	<aside class="flex items-center justify-center bg-white p-6 md:p-10">
+		<div class="w-full max-w-md rounded-2xl border border-border bg-white p-7 shadow-sm md:p-8">
+			<h1 class="text-2xl font-semibold text-primary">Iniciar sesión</h1>
+			<p class="mt-1 text-sm text-muted">Ingresa tus credenciales para continuar</p>
+
+			<form class="mt-7 space-y-4" [formGroup]="form" (ngSubmit)="submit()">
+				<app-ui-input label="Usuario o correo" controlName="user" placeholder="correo@empresa.pe" />
+				<app-ui-input label="Contraseña" controlName="password" type="password" placeholder="••••••••" />
+				<app-ui-button type="submit" [fullWidth]="true">Iniciar sesión</app-ui-button>
+			</form>
+
+			<p class="mt-6 text-center text-xs text-muted">Facturación electrónica para Perú · SUNAT certificado</p>
+		</div>
+	</aside>
+</section>
