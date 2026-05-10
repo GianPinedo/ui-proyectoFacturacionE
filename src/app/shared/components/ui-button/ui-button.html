@@ -1,3 +1,28 @@
-<button [type]="type" [disabled]="disabled" [class]="classes">
+<button
+	[type]="type"
+	[disabled]="disabled"
+	class="inline-flex items-center justify-center px-5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 disabled:cursor-not-allowed disabled:opacity-60"
+	[class.w-full]="fullWidth"
+	[class.h-11]="variant !== 'login'"
+	[class.h-12]="variant === 'login'"
+	[class.rounded-xl]="variant !== 'login'"
+	[class.rounded-2xl]="variant === 'login'"
+	[class.border]="variant === 'secondary'"
+	[class.border-border]="variant === 'secondary'"
+	[class.bg-white]="variant === 'secondary'"
+	[class.text-primary]="variant === 'secondary'"
+	[class.hover:bg-page]="variant === 'secondary'"
+	[class.bg-accent]="variant === 'primary' || variant === 'login'"
+	[class.text-white]="variant === 'primary' || variant === 'accent-strong' || variant === 'login'"
+	[class.hover:bg-accent/90]="variant === 'primary'"
+	[class.bg-primary]="variant === 'accent-strong'"
+	[class.shadow-lg]="variant === 'accent-strong'"
+	[class.shadow-primary/30]="variant === 'accent-strong'"
+	[class.hover:-translate-y-0.5]="variant === 'accent-strong'"
+	[class.hover:bg-primary-dark]="variant === 'accent-strong'"
+	[class.shadow-[0_10px_24px_-10px_rgba(0,173,143,0.75)]]="variant === 'login'"
+	[class.hover:bg-[#00997f]]="variant === 'login'"
+	[class.active:translate-y-px]="variant === 'login'"
+>
 	<ng-content />
 </button>

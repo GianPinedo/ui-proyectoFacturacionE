@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:hostinger": "node server.js",
     "build": "ng build",
     "build:hostinger": "npm run build && rm -rf browser && mkdir -p browser && cp -R dist/efactzy-peru/browser/. browser/",
     "watch": "ng build --watch --configuration development",

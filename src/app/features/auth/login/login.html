@@ -23,7 +23,7 @@
 			<form class="mt-7 space-y-4" [formGroup]="form" (ngSubmit)="submit()">
 				<app-ui-input label="Usuario o correo" controlName="user" placeholder="correo@empresa.pe" />
 				<app-ui-input label="Contraseña" controlName="password" type="password" placeholder="••••••••" />
-				<app-ui-button type="submit" [fullWidth]="true">Iniciar sesión</app-ui-button>
+				<app-ui-button type="submit" [fullWidth]="true" variant="login">Iniciar sesión</app-ui-button>
 			</form>
 
 			<p class="mt-6 text-center text-xs text-muted">Facturación electrónica para Perú · SUNAT certificado</p>
