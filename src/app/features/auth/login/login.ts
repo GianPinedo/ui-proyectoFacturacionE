@@ -2,12 +2,11 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { UiButtonComponent } from '../../../shared/components/ui-button/ui-button';
 import { UiInputComponent } from '../../../shared/components/ui-input/ui-input';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, UiInputComponent, UiButtonComponent],
+  imports: [ReactiveFormsModule, UiInputComponent],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
