@@ -5,6 +5,10 @@ import { environment } from '../../../environments/environment';
 import {
   ChangePasswordPayload,
   ChangePasswordResponse,
+  CreateUsuarioPayload,
+  CreateUsuarioResponse,
+  RolesListParams,
+  RolesListResponse,
   UsuariosListParams,
   UsuariosListResponse,
   UpdateUsuarioPayload,
@@ -29,6 +33,16 @@ export class UsuariosService {
     });
   }
 
+  createUsuario(payload: CreateUsuarioPayload): Observable<CreateUsuarioResponse> {
+    const xUserId = this.authService.getUserId() || '0';
+
+    return this.http.post<CreateUsuarioResponse>(`${environment.apiBaseUrl}/usuarios`, payload, {
+      headers: {
+        'x-user-id': String(xUserId),
+      },
+    });
+  }
+
   changePassword(payload: ChangePasswordPayload): Observable<ChangePasswordResponse> {
     return this.http.put<ChangePasswordResponse>(`${environment.apiBaseUrl}/usuarios/me/password`, payload);
   }
@@ -47,6 +61,24 @@ export class UsuariosService {
     }
 
     return this.http.get<UsuariosListResponse>(`${environment.apiBaseUrl}/usuarios`, {
+      params: httpParams,
+    });
+  }
+
+  getRoles(params: RolesListParams): Observable<RolesListResponse> {
+    let httpParams = new HttpParams()
+      .set('page', params.page)
+      .set('size', params.size);
+
+    if (params.nombre?.trim()) {
+      httpParams = httpParams.set('nombre', params.nombre.trim());
+    }
+
+    if (params.estado?.trim()) {
+      httpParams = httpParams.set('estado', params.estado.trim());
+    }
+
+    return this.http.get<RolesListResponse>(`${environment.apiBaseUrl}/roles`, {
       params: httpParams,
     });
   }

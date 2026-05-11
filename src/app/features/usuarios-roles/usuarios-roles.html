@@ -1,8 +1,17 @@
 <section class="space-y-6">
 	<div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
 		<app-page-title [title]="title" [subtitle]="subtitle" />
-		<app-ui-button>Nuevo</app-ui-button>
+		<app-ui-button type="button" (click)="openCreateUserForm()">Nuevo</app-ui-button>
 	</div>
+
+	@if (isCreateUserOpen()) {
+		<app-create-user-modal
+			[roleOptions]="createRoleOptions()"
+			[isSaving]="isSavingUser()"
+			(cancelRequested)="closeCreateUserForm()"
+			(saveRequested)="submitCreateUser($event)"
+		/>
+	}
 
 	<app-ui-card>
 		<form class="grid gap-4 md:grid-cols-[1fr_220px_auto_auto] md:items-end" [formGroup]="filtersForm" (ngSubmit)="onSearch()">
@@ -22,7 +31,7 @@
 					class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition focus:border-accent"
 				>
 					<option value="">Todos</option>
-					@for (rol of roles; track rol) {
+					@for (rol of roles(); track rol) {
 						<option [value]="rol">{{ rol }}</option>
 					}
 				</select>
@@ -41,8 +50,13 @@
 			[rows]="rows()"
 			[loading]="isLoading()"
 			[skeletonRows]="skeletonRows"
+			[showActions]="true"
+			actionsColumnKey="acciones"
 			statusColumnKey="estado"
 			emptyLabel="No se encontraron usuarios."
+			(editRequested)="onEditRequested($event)"
+			(deleteRequested)="onDeleteRequested($event)"
+			(disableAccessRequested)="onDisableAccessRequested($event)"
 		/>
 
 		<app-ui-pagination
