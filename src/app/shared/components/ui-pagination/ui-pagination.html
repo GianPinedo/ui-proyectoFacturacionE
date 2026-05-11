@@ -1,0 +1,85 @@
+<div class="mt-4 flex flex-col gap-3 border-t border-border pt-4 text-sm text-muted md:flex-row md:items-center md:justify-between">
+	<div class="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+		<p>
+			Página {{ page + 1 }} de {{ totalPages || 1 }} · Total: {{ total }}
+		</p>
+		<label class="flex items-center gap-2">
+			<span>Tamaño de página</span>
+			<select
+				class="h-9 rounded-lg border border-border bg-white px-2 text-sm text-primary outline-none transition focus:border-accent"
+				[disabled]="loading"
+				[value]="pageSize || 10"
+				(change)="onPageSizeChange(($any($event.target).value))"
+			>
+				@for (size of pageSizeOptions; track size) {
+					<option [value]="size" [selected]="size === (pageSize || 10)">{{ size }}</option>
+				}
+			</select>
+		</label>
+	</div>
+
+	<div class="flex items-center gap-2">
+		<app-ui-button
+			type="button"
+			variant="secondary"
+			[disabled]="loading || page <= 0"
+			(click)="previousPage()"
+			aria-label="Página anterior"
+			title="Página anterior"
+		>
+			<lucide-angular [img]="chevronLeftIcon" [size]="16" />
+		</app-ui-button>
+
+		@if (showLeftEllipsis) {
+			<app-ui-button
+				type="button"
+				variant="secondary"
+				[disabled]="loading"
+				(click)="goToPage(1)"
+				aria-label="Primera página"
+				title="Primera página"
+			>
+				1
+			</app-ui-button>
+			<span class="inline-flex items-center px-1 text-muted"><lucide-angular [img]="moreHorizontalIcon" [size]="16" /></span>
+		}
+
+		@for (pageNumber of visiblePageNumbers; track pageNumber) {
+			<app-ui-button
+				type="button"
+				[variant]="page + 1 === pageNumber ? 'primary' : 'secondary'"
+				[disabled]="loading"
+				(click)="goToPage(pageNumber)"
+				[attr.aria-label]="'Ir a página ' + pageNumber"
+				[attr.title]="'Página ' + pageNumber"
+			>
+				{{ pageNumber }}
+			</app-ui-button>
+		}
+
+		@if (showRightEllipsis) {
+			<span class="inline-flex items-center px-1 text-muted"><lucide-angular [img]="moreHorizontalIcon" [size]="16" /></span>
+			<app-ui-button
+				type="button"
+				variant="secondary"
+				[disabled]="loading"
+				(click)="goToPage(totalPages)"
+				aria-label="Última página"
+				title="Última página"
+			>
+				{{ totalPages }}
+			</app-ui-button>
+		}
+
+		<app-ui-button
+			type="button"
+			variant="secondary"
+			[disabled]="loading || page + 1 >= totalPages"
+			(click)="nextPage()"
+			aria-label="Página siguiente"
+			title="Página siguiente"
+		>
+			<lucide-angular [img]="chevronRightIcon" [size]="16" />
+		</app-ui-button>
+	</div>
+</div>

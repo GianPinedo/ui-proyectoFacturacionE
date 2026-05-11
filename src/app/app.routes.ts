@@ -92,6 +92,10 @@ export const routes: Routes = [
 				path: 'auditoria',
 				loadComponent: () => import('./features/auditoria/auditoria').then((m) => m.AuditoriaComponent),
 			},
+			{
+				path: 'mi-perfil',
+				loadComponent: () => import('./features/mi-perfil/mi-perfil').then((m) => m.MiPerfilComponent),
+			},
 		],
 	},
 	{

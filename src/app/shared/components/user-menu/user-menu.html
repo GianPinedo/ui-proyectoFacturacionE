@@ -4,10 +4,10 @@
 		type="button"
 		(click)="onTriggerClick($event)"
 	>
-		<div class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">GP</div>
+		<div class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">{{ avatarInitials }}</div>
 		<div class="hidden text-left md:block">
-			<p class="text-sm font-semibold text-primary">Gian Pierre</p>
-			<p class="text-xs text-muted">Administrador</p>
+			<p class="text-sm font-semibold text-primary">{{ displayName }}</p>
+			<p class="text-xs text-muted">{{ roleLabel }}</p>
 		</div>
 		<lucide-angular [img]="chevronDownIcon" [size]="16" class="text-muted" />
 	</button>
@@ -20,6 +20,7 @@
 			<button
 				class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-primary transition hover:bg-page"
 				type="button"
+				(click)="onProfile()"
 			>
 				<lucide-angular [img]="userIcon" [size]="16" />
 				Mi perfil

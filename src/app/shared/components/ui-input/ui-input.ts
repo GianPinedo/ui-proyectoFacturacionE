@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { Input } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-ui-input',
   imports: [ReactiveFormsModule],
+  viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
   templateUrl: './ui-input.html',
   styleUrl: './ui-input.css',
 })

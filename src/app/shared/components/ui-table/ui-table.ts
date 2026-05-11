@@ -14,4 +14,10 @@ export class UiTableComponent {
   @Input({ required: true }) rows: Record<string, string>[] = [];
   @Input() statusColumnKey = 'estado';
   @Input() emptyLabel = 'Sin datos disponibles';
+  @Input() loading = false;
+  @Input() skeletonRows = 6;
+
+  get skeletonIndexes(): number[] {
+    return Array.from({ length: this.skeletonRows }, (_, index) => index);
+  }
 }

@@ -10,22 +10,34 @@
 			</tr>
 		</thead>
 		<tbody>
-			@for (row of rows; track $index) {
-				<tr>
-					@for (column of columns; track column.key) {
-						<td class="border-b border-border/70 px-4 py-3 text-sm text-primary">
-							@if (column.key === statusColumnKey) {
-								<app-status-badge [status]="row[column.key]" />
-							} @else {
-								{{ row[column.key] }}
-							}
-						</td>
-					}
-				</tr>
-			} @empty {
-				<tr>
-					<td class="px-4 py-8 text-center text-sm text-muted" [attr.colspan]="columns.length">{{ emptyLabel }}</td>
-				</tr>
+			@if (loading) {
+				@for (_ of skeletonIndexes; track $index) {
+					<tr>
+						@for (column of columns; track column.key) {
+							<td class="border-b border-border/70 px-4 py-3">
+								<div class="h-4 w-full animate-pulse rounded-md bg-slate-200"></div>
+							</td>
+						}
+					</tr>
+				}
+			} @else {
+				@for (row of rows; track $index) {
+					<tr>
+						@for (column of columns; track column.key) {
+							<td class="border-b border-border/70 px-4 py-3 text-sm text-primary">
+								@if (column.key === statusColumnKey) {
+									<app-status-badge [status]="row[column.key]" />
+								} @else {
+									{{ row[column.key] }}
+								}
+							</td>
+						}
+					</tr>
+				} @empty {
+					<tr>
+						<td class="px-4 py-8 text-center text-sm text-muted" [attr.colspan]="columns.length">{{ emptyLabel }}</td>
+					</tr>
+				}
 			}
 		</tbody>
 	</table>
