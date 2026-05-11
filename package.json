@@ -10,7 +10,7 @@
     "build": "ng build",
     "build:local": "ng build --configuration local",
     "build:dev": "ng build --configuration dev",
-    "build:hostinger": "npm run build && rm -rf browser && mkdir -p browser && cp -R dist/efactzy-peru/browser/. browser/",
+    "build:hostinger": "npm run build && rm -rf browser && mkdir -p browser && cp -R dist/efactzy-peru/browser/* browser/ && cp public/.htaccess browser/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
