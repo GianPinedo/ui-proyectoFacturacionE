@@ -1,20 +1,28 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import { LucideAngularModule, Menu } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth.service';
 import { UserMenuComponent } from '../../shared/components/user-menu/user-menu';
 
 @Component({
   selector: 'app-topbar',
-  imports: [UserMenuComponent],
+  imports: [UserMenuComponent, LucideAngularModule],
   templateUrl: './topbar.html',
   styleUrl: './topbar.css',
 })
 export class TopbarComponent {
+  @Output() readonly menuRequested = new EventEmitter<void>();
+  readonly menuIcon = Menu;
+
   constructor(
     private readonly authService: AuthService,
     private readonly router: Router,
   ) {}
+
+  openMenu(): void {
+    this.menuRequested.emit();
+  }
 
   openProfile(): void {
     this.router.navigateByUrl('/mi-perfil');

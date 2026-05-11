@@ -1,8 +1,17 @@
 <div class="flex h-screen bg-page">
-	<app-sidebar />
+	<app-sidebar [isMobileOpen]="isSidebarOpen" (closeRequested)="closeSidebar()" />
+
+	@if (isSidebarOpen) {
+		<button
+			type="button"
+			class="fixed inset-0 z-30 bg-black/40 lg:hidden"
+			(click)="closeSidebar()"
+			aria-label="Cerrar menú"
+		></button>
+	}
 
 	<div class="ml-0 flex min-w-0 flex-1 flex-col lg:ml-[280px]">
-		<app-topbar />
+		<app-topbar (menuRequested)="toggleSidebar()" />
 
 		<main class="min-h-0 flex-1 overflow-y-auto p-5 md:p-7">
 			<router-outlet />

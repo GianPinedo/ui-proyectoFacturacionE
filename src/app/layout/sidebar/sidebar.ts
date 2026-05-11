@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -27,6 +27,9 @@ import { NavigationItem } from '../../core/models/navigation-item.model';
   styleUrl: './sidebar.css',
 })
 export class SidebarComponent {
+  @Input() isMobileOpen = false;
+  @Output() readonly closeRequested = new EventEmitter<void>();
+
   readonly menuItems: NavigationItem[] = [
     { label: 'Inicio', path: '/inicio', icon: House },
     { label: 'Empresa', path: '/empresa', icon: Building2 },
@@ -44,4 +47,8 @@ export class SidebarComponent {
     { label: 'Reportes tributarios', path: '/reportes-tributarios', icon: ReceiptText },
     { label: 'Auditoría', path: '/auditoria', icon: FileClock },
   ];
+
+  closeOnMobile(): void {
+    this.closeRequested.emit();
+  }
 }

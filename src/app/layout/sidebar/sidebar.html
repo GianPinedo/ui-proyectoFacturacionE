@@ -1,4 +1,8 @@
-<aside class="hidden h-screen w-[280px] shrink-0 border-r border-white/10 bg-primary-dark text-white lg:fixed lg:left-0 lg:top-0 lg:flex lg:flex-col">
+<aside
+	class="fixed left-0 top-0 z-40 flex h-screen w-[280px] shrink-0 flex-col border-r border-white/10 bg-primary-dark text-white transition-transform duration-200 lg:translate-x-0"
+	[class.-translate-x-full]="!isMobileOpen"
+	[class.translate-x-0]="isMobileOpen"
+>
 	<div class="flex items-center gap-3 px-6 py-6">
 		<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white/15 text-base font-bold text-white">EF</div>
 		<div>
@@ -11,6 +15,7 @@
 		@for (item of menuItems; track item.path) {
 			<a
 				[routerLink]="item.path"
+				(click)="closeOnMobile()"
 				routerLinkActive
 				#rla="routerLinkActive"
 				[class.bg-[#07594f]]="rla.isActive"
