@@ -13,7 +13,7 @@ export class UiPaginationComponent {
   @Input({ required: true }) totalPages = 0;
   @Input({ required: true }) total = 0;
   @Input({ required: true }) pageSize = 10;
-  @Input() pageSizeOptions: number[] = [5, 10, 20];
+  @Input() pageSizeOptions: number[] = [5, 10, 20, 50, 100];
   @Input() loading = false;
 
   @Output() readonly pageChange = new EventEmitter<number>();
