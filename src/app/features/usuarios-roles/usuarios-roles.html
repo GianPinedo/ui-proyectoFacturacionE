@@ -1,73 +1,197 @@
 <section class="space-y-6">
 	<div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
 		<app-page-title [title]="title" [subtitle]="subtitle" />
-		<app-ui-button type="button" (click)="openCreateUserForm()">Nuevo</app-ui-button>
 	</div>
 
-	@if (isCreateUserOpen()) {
+	<div class="flex gap-2 border-b border-border/60">
+		<button
+			type="button"
+			(click)="currentTab.set('usuarios')"
+			class="px-4 py-2 text-sm font-medium transition"
+			[class.border-b-2]="currentTab() === 'usuarios'"
+			[class.border-accent]="currentTab() === 'usuarios'"
+			[class.text-primary]="currentTab() === 'usuarios'"
+			[class.text-muted]="currentTab() !== 'usuarios'"
+		>
+			Usuarios
+		</button>
+		<button
+			type="button"
+			(click)="currentTab.set('roles')"
+			class="px-4 py-2 text-sm font-medium transition"
+			[class.border-b-2]="currentTab() === 'roles'"
+			[class.border-accent]="currentTab() === 'roles'"
+			[class.text-primary]="currentTab() === 'roles'"
+			[class.text-muted]="currentTab() !== 'roles'"
+		>
+			Roles
+		</button>
+	</div>
+
+	@if (isUserModalOpen()) {
 		<app-create-user-modal
+			[mode]="userModalMode()"
 			[roleOptions]="createRoleOptions()"
+			[initialData]="userModalInitialData()"
 			[isSaving]="isSavingUser()"
+			[isLoadingInitialData]="isLoadingUserData()"
 			(cancelRequested)="closeCreateUserForm()"
 			(saveRequested)="submitCreateUser($event)"
 		/>
 	}
 
-	<app-ui-card>
-		<form class="grid gap-4 md:grid-cols-[1fr_220px_auto_auto] md:items-end" [formGroup]="filtersForm" (ngSubmit)="onSearch()">
-			<label class="flex flex-col gap-2">
-				<span class="text-sm font-medium text-primary">Buscar</span>
-				<input
-					formControlName="buscar"
-					placeholder="Nombre, usuario o correo"
-					class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition placeholder:text-muted/70 focus:border-accent"
-				/>
-			</label>
+	@if (isRolModalOpen()) {
+		<app-create-rol-modal
+			[mode]="rolModalMode()"
+			[initialData]="rolModalInitialData()"
+			[isSaving]="isSavingRol()"
+			[modulos]="modulesForRoleForm()"
+			[modulesLoading]="modulesForRoleFormLoading()"
+			(cancelRequested)="closeCreateRolForm()"
+			(saveRequested)="submitCreateRol($event)"
+		/>
+	}
 
-			<label class="flex flex-col gap-2">
-				<span class="text-sm font-medium text-primary">Rol</span>
-				<select
-					formControlName="rol"
-					class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition focus:border-accent"
-				>
-					<option value="">Todos</option>
-					@for (rol of roles(); track rol) {
-						<option [value]="rol">{{ rol }}</option>
+	@if (isRoleModulesModalOpen()) {
+		<div class="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 md:items-center" (click)="closeRoleModulesModal()">
+			<div class="my-4 w-full max-w-5xl rounded-2xl bg-white p-6 shadow-lg" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Módulos por rol">
+				<div class="mb-4 flex items-center justify-between">
+					<div>
+						<h3 class="text-lg font-semibold text-primary">Módulos del rol: {{ selectedRoleName() }}</h3>
+						<p class="text-sm text-muted">Estructura jerárquica de módulos.</p>
+					</div>
+					<app-ui-button type="button" variant="secondary" (click)="closeRoleModulesModal()">Cerrar</app-ui-button>
+				</div>
+
+				<div class="max-h-[65vh] overflow-y-auto rounded-xl border border-border/70 bg-slate-50/60 p-4">
+					@if (roleModulesLoading()) {
+						<div class="py-8 text-center text-sm text-muted">Cargando módulos...</div>
+					} @else {
+						@for (item of roleModulesTreeRows(); track item.module.idModulo) {
+							<div
+								class="relative mb-2 rounded-xl border border-border/70 bg-white px-3 py-2 shadow-sm"
+								[style.margin-left.px]="item.level * 22"
+							>
+								<div class="flex min-w-0 items-center gap-2">
+									<span class="text-slate-400">•</span>
+									<div class="min-w-0">
+										<p class="truncate text-sm font-medium text-primary">{{ item.module.nombre }}</p>
+										<p class="truncate text-xs text-muted">{{ item.module.ruta || 'Sin ruta' }}</p>
+									</div>
+								</div>
+							</div>
+						} @empty {
+							<div class="py-8 text-center text-sm text-muted">No hay módulos asociados a este rol.</div>
+						}
 					}
-				</select>
-			</label>
+				</div>
+			</div>
+		</div>
+	}
 
-			<app-ui-button type="submit" [disabled]="isLoading()" title="Buscar" aria-label="Buscar">
-				Buscar  <lucide-angular [img]="searchIcon" [size]="18" /> 
-			</app-ui-button>
-			<app-ui-button type="button" variant="secondary" [disabled]="isLoading()" (click)="clearFilters()">Limpiar</app-ui-button>
-		</form>
-	</app-ui-card>
+	@if (currentTab() === 'usuarios') {
+		<div class="space-y-6">
+			<div class="flex justify-end">
+				<app-ui-button type="button" (click)="openCreateUserForm()">Nuevo usuario</app-ui-button>
+			</div>
 
-	<app-ui-card>
-		<app-ui-table
-			[columns]="columns"
-			[rows]="rows()"
-			[loading]="isLoading()"
-			[skeletonRows]="skeletonRows"
-			[showActions]="true"
-			actionsColumnKey="acciones"
-			statusColumnKey="estado"
-			emptyLabel="No se encontraron usuarios."
-			(editRequested)="onEditRequested($event)"
-			(deleteRequested)="onDeleteRequested($event)"
-			(disableAccessRequested)="onDisableAccessRequested($event)"
-		/>
+			<app-ui-card>
+				<form class="grid gap-4 md:grid-cols-[1fr_220px_auto_auto] md:items-end" [formGroup]="filtersForm" (ngSubmit)="onSearch()">
+					<label class="flex flex-col gap-2">
+						<span class="text-sm font-medium text-primary">Buscar</span>
+						<input
+							formControlName="buscar"
+							placeholder="Nombre, usuario o correo"
+							class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition placeholder:text-muted/70 focus:border-accent"
+						/>
+					</label>
 
-		<app-ui-pagination
-			[page]="pagination().page"
-			[totalPages]="pagination().totalPages"
-			[total]="pagination().total"
-			[pageSize]="filtersForm.controls.pageSize.value"
-			[pageSizeOptions]="pageSizeOptions"
-			[loading]="isLoading()"
-			(pageChange)="goToPage($event)"
-			(pageSizeChange)="onPageSizeChange($event)"
-		/>
-	</app-ui-card>
+					<label class="flex flex-col gap-2">
+						<span class="text-sm font-medium text-primary">Rol</span>
+						<select
+							formControlName="rol"
+							class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition focus:border-accent"
+						>
+							<option value="">Todos</option>
+							@for (rol of roles(); track rol) {
+								<option [value]="rol">{{ rol }}</option>
+							}
+						</select>
+					</label>
+
+					<app-ui-button type="submit" [disabled]="isLoading()" title="Buscar" aria-label="Buscar">
+						Buscar  <lucide-angular [img]="searchIcon" [size]="18" />
+					</app-ui-button>
+					<app-ui-button type="button" variant="secondary" [disabled]="isLoading()" (click)="clearFilters()">Limpiar</app-ui-button>
+				</form>
+			</app-ui-card>
+
+			<app-ui-card>
+				<app-ui-table
+					[columns]="columns"
+					[rows]="rows()"
+					[loading]="isLoading()"
+					[skeletonRows]="skeletonRows"
+					[showActions]="true"
+					actionsColumnKey="acciones"
+					statusColumnKey="estado"
+					emptyLabel="No se encontraron usuarios."
+					(editRequested)="onEditRequested($event)"
+					(resetPasswordRequested)="onResetPasswordRequested($event)"
+					(disableAccessRequested)="onDisableAccessRequested($event)"
+				/>
+
+				<app-ui-pagination
+					[page]="pagination().page"
+					[totalPages]="pagination().totalPages"
+					[total]="pagination().total"
+					[pageSize]="filtersForm.controls.pageSize.value"
+					[pageSizeOptions]="pageSizeOptions"
+					[loading]="isLoading()"
+					(pageChange)="goToPage($event)"
+					(pageSizeChange)="onPageSizeChange($event)"
+				/>
+			</app-ui-card>
+		</div>
+	}
+
+	@if (currentTab() === 'roles') {
+		<div class="space-y-6">
+			<div class="flex justify-end">
+				<app-ui-button type="button" (click)="openCreateRolForm()">Agregar rol</app-ui-button>
+			</div>
+
+			<app-ui-card>
+				<app-ui-table
+					[columns]="rolesColumns"
+					[rows]="rolesData()"
+					[loading]="rolesLoading()"
+					[skeletonRows]="skeletonRows"
+					[showActions]="true"
+					[showEditAction]="true"
+					[showResetPasswordAction]="false"
+					[showDisableAccessAction]="true"
+					[showViewModulesAction]="true"
+					actionsColumnKey="acciones"
+					statusColumnKey="estado"
+					emptyLabel="No se encontraron roles."
+					(editRequested)="onEditRolRequested($event)"
+					(disableAccessRequested)="onDisableRoleRequested($event)"
+					(viewModulesRequested)="onViewRoleModulesRequested($event)"
+				/>
+
+				<app-ui-pagination
+					[page]="rolesPagination().page"
+					[totalPages]="rolesPagination().totalPages"
+					[total]="rolesPagination().total"
+					[pageSize]="rolesFiltersForm.controls.pageSize.value"
+					[pageSizeOptions]="pageSizeOptions"
+					[loading]="rolesLoading()"
+					(pageChange)="goToRolesPage($event)"
+					(pageSizeChange)="onRolesPageSizeChange($event)"
+				/>
+			</app-ui-card>
+		</div>
+	}
+
 </section>

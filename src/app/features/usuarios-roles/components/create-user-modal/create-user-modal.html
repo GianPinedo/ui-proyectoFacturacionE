@@ -1,9 +1,9 @@
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4" (click)="close()">
-  <div class="w-full max-w-5xl" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Crear usuario">
-    <div class="overflow-hidden rounded-3xl border border-border bg-[#EEF2F3] shadow-xl">
+<div class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/45 p-4 md:items-center" (click)="close()">
+  <div class="my-4 w-full max-w-5xl" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" [attr.aria-label]="isEditMode() ? 'Editar usuario' : 'Crear usuario'">
+    <div class="flex max-h-[calc(100vh-2rem)] flex-col overflow-hidden rounded-3xl border border-border bg-[#EEF2F3] shadow-xl">
       <div class="flex items-start justify-between gap-4 border-b border-slate-200 bg-white px-6 py-5 md:px-8">
         <div>
-          <h3 class="text-2xl font-extrabold text-primary">Nuevo usuario</h3>
+          <h3 class="text-2xl font-extrabold text-primary">{{ isEditMode() ? 'Editar usuario' : 'Nuevo usuario' }}</h3>
         </div>
         <button
           type="button"
@@ -16,119 +16,161 @@
         </button>
       </div>
 
-      <form class="grid gap-5 p-6 md:grid-cols-2 md:p-8" [formGroup]="form" (ngSubmit)="submit()">
-        <label class="flex flex-col gap-2">
-          <span class="text-sm font-semibold text-slate-700">Nombres <span class="text-rose-500">*</span></span>
-          <input
-            formControlName="nombres"
-            placeholder="Juan Carlos"
-            class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent"
-          />
-        </label>
-
-        <label class="flex flex-col gap-2">
-          <span class="text-sm font-semibold text-slate-700">Apellidos <span class="text-rose-500">*</span></span>
-          <input
-            formControlName="apellidos"
-            placeholder="Pérez García"
-            class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent"
-          />
-        </label>
-
-        <label class="flex flex-col gap-2">
-          <span class="text-sm font-semibold text-slate-700">Correo <span class="text-rose-500">*</span></span>
-          <input
-            formControlName="correo"
-            type="email"
-            placeholder="usuario@empresa.com"
-            class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent"
-          />
-        </label>
-
-        <label class="flex flex-col gap-2">
-          <span class="text-sm font-semibold text-slate-700">Username <span class="text-rose-500">*</span></span>
-          <input
-            formControlName="username"
-            placeholder="jperez"
-            class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent"
-          />
-        </label>
-
-        <label class="flex flex-col gap-2">
-          <span class="text-sm font-semibold text-slate-700">Rol <span class="text-rose-500">*</span></span>
-          <select
-            formControlName="idRol"
-            class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition focus:border-accent"
-          >
-            <option [ngValue]="0" disabled>Seleccionar rol</option>
-            @for (role of roleOptions(); track role.id) {
-              <option [ngValue]="role.id">{{ role.label }}</option>
-            }
-          </select>
-        </label>
-
-        <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <span class="text-sm font-semibold text-slate-700">Estado</span>
-            <label class="inline-flex cursor-pointer items-center">
-              <input type="checkbox" formControlName="estado" class="peer sr-only" />
-              <span class="mr-3 text-base font-medium text-slate-700">{{ form.controls.estado.value ? 'Activo' : 'Inactivo' }}</span>
-              <span class="relative h-8 w-14 rounded-full bg-slate-300 transition peer-checked:bg-[#00594F] after:absolute after:left-1 after:top-1 after:h-6 after:w-6 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-6"></span>
-            </label>
+      <form class="grid gap-5 overflow-y-auto p-6 md:grid-cols-2 md:p-8" [formGroup]="form" (ngSubmit)="submit()">
+        @if (isLoadingInitialData()) {
+          <!-- Skeletons para campos de nombres -->
+          <div class="flex flex-col gap-2">
+            <div class="h-5 w-20 bg-slate-200 rounded animate-pulse"></div>
+            <app-skeleton height="md" />
           </div>
-        </div>
 
-        <label class="flex flex-col gap-2">
-          <span class="text-sm font-semibold text-slate-700">Contraseña <span class="text-rose-500">*</span></span>
-          <div class="relative">
+          <!-- Skeletons para apellidos -->
+          <div class="flex flex-col gap-2">
+            <div class="h-5 w-20 bg-slate-200 rounded animate-pulse"></div>
+            <app-skeleton height="md" />
+          </div>
+
+          <!-- Skeletons para correo -->
+          <div class="flex flex-col gap-2">
+            <div class="h-5 w-20 bg-slate-200 rounded animate-pulse"></div>
+            <app-skeleton height="md" />
+          </div>
+
+          <!-- Skeletons para username -->
+          <div class="flex flex-col gap-2">
+            <div class="h-5 w-20 bg-slate-200 rounded animate-pulse"></div>
+            <app-skeleton height="md" />
+          </div>
+
+          <!-- Skeletons para rol -->
+          <div class="flex flex-col gap-2">
+            <div class="h-5 w-20 bg-slate-200 rounded animate-pulse"></div>
+            <app-skeleton height="md" />
+          </div>
+
+          <!-- Skeletons para estado -->
+          <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+            <div class="h-5 w-16 bg-slate-200 rounded animate-pulse"></div>
+          </div>
+        } @else {
+          <label class="flex flex-col gap-2">
+            <span class="text-sm font-semibold text-slate-700">Nombres <span class="text-rose-500">*</span></span>
             <input
-              formControlName="password"
-              [type]="showPassword() ? 'text' : 'password'"
-              placeholder="••••••••"
-              class="h-12 w-full rounded-2xl border border-border bg-white px-4 pr-12 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent"
+              formControlName="nombres"
+              placeholder="Juan Carlos"
+              class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent"
             />
-            <button
-              type="button"
-              class="absolute inset-y-0 right-0 inline-flex w-12 items-center justify-center text-slate-500 transition hover:text-primary"
-              (click)="togglePasswordVisibility()"
-              aria-label="Mostrar u ocultar contraseña"
-              title="Mostrar u ocultar contraseña"
-            >
-              <lucide-angular [img]="showPassword() ? eyeOffIcon : eyeIcon" [size]="18" />
-            </button>
-          </div>
-        </label>
+          </label>
 
-        <label class="flex flex-col gap-2">
-          <span class="text-sm font-semibold text-slate-700">Confirmar contraseña <span class="text-rose-500">*</span></span>
-          <div class="relative">
+          <label class="flex flex-col gap-2">
+            <span class="text-sm font-semibold text-slate-700">Apellidos <span class="text-rose-500">*</span></span>
             <input
-              formControlName="confirmarPassword"
-              [type]="showConfirmPassword() ? 'text' : 'password'"
-              placeholder="••••••••"
-              class="h-12 w-full rounded-2xl border border-border bg-white px-4 pr-12 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent"
+              formControlName="apellidos"
+              placeholder="Pérez García"
+              class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent"
             />
-            <button
-              type="button"
-              class="absolute inset-y-0 right-0 inline-flex w-12 items-center justify-center text-slate-500 transition hover:text-primary"
-              (click)="toggleConfirmPasswordVisibility()"
-              aria-label="Mostrar u ocultar confirmación de contraseña"
-              title="Mostrar u ocultar confirmación de contraseña"
+          </label>
+
+          <label class="flex flex-col gap-2">
+            <span class="text-sm font-semibold text-slate-700">Correo <span class="text-rose-500">*</span></span>
+            <input
+              formControlName="correo"
+              type="email"
+              placeholder="usuario@empresa.com"
+              class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent"
+            />
+          </label>
+
+          <label class="flex flex-col gap-2">
+            <span class="text-sm font-semibold text-slate-700">Username <span class="text-rose-500">*</span></span>
+            <input
+              formControlName="username"
+              placeholder="jperez"
+              [readonly]="isEditMode()"
+              class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent"
+            />
+          </label>
+
+          <label class="flex flex-col gap-2">
+            <span class="text-sm font-semibold text-slate-700">Rol <span class="text-rose-500">*</span></span>
+            <select
+              formControlName="idRol"
+              class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition focus:border-accent"
             >
-              <lucide-angular [img]="showConfirmPassword() ? eyeOffIcon : eyeIcon" [size]="18" />
-            </button>
-          </div>
-          <p class="text-sm text-slate-500">La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas y números</p>
-          @if (passwordMismatch() && (form.controls.confirmarPassword.touched || form.controls.confirmarPassword.dirty)) {
-            <p class="text-sm font-medium text-rose-600">Las contraseñas no coinciden.</p>
+              <option [ngValue]="0" disabled>Seleccionar rol</option>
+              @for (role of roleOptions(); track role.id) {
+                <option [ngValue]="role.id">{{ role.label }}</option>
+              }
+            </select>
+          </label>
+
+          @if (!isEditMode()) {
+            <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <span class="text-sm font-semibold text-slate-700">Estado</span>
+                <label class="inline-flex cursor-pointer items-center">
+                  <input type="checkbox" formControlName="estado" class="peer sr-only" />
+                  <span class="mr-3 text-base font-medium text-slate-700">{{ form.controls.estado.value ? 'Activo' : 'Inactivo' }}</span>
+                  <span class="relative h-8 w-14 rounded-full bg-slate-300 transition peer-checked:bg-[#00594F] after:absolute after:left-1 after:top-1 after:h-6 after:w-6 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-6"></span>
+                </label>
+              </div>
+            </div>
           }
-        </label>
+
+          @if (!isEditMode()) {
+            <label class="flex flex-col gap-2">
+              <span class="text-sm font-semibold text-slate-700">Contraseña <span class="text-rose-500">*</span></span>
+              <div class="relative">
+                <input
+                  formControlName="password"
+                  [type]="showPassword() ? 'text' : 'password'"
+                  placeholder="••••••••"
+                  class="h-12 w-full rounded-2xl border border-border bg-white px-4 pr-12 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent"
+                />
+                <button
+                  type="button"
+                  class="absolute inset-y-0 right-0 inline-flex w-12 items-center justify-center text-slate-500 transition hover:text-primary"
+                  (click)="togglePasswordVisibility()"
+                  aria-label="Mostrar u ocultar contraseña"
+                  title="Mostrar u ocultar contraseña"
+                >
+                  <lucide-angular [img]="showPassword() ? eyeOffIcon : eyeIcon" [size]="18" />
+                </button>
+              </div>
+            </label>
+
+            <label class="flex flex-col gap-2">
+              <span class="text-sm font-semibold text-slate-700">Confirmar contraseña <span class="text-rose-500">*</span></span>
+              <div class="relative">
+                <input
+                  formControlName="confirmarPassword"
+                  [type]="showConfirmPassword() ? 'text' : 'password'"
+                  placeholder="••••••••"
+                  class="h-12 w-full rounded-2xl border border-border bg-white px-4 pr-12 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent"
+                />
+                <button
+                  type="button"
+                  class="absolute inset-y-0 right-0 inline-flex w-12 items-center justify-center text-slate-500 transition hover:text-primary"
+                  (click)="toggleConfirmPasswordVisibility()"
+                  aria-label="Mostrar u ocultar confirmación de contraseña"
+                  title="Mostrar u ocultar confirmación de contraseña"
+                >
+                  <lucide-angular [img]="showConfirmPassword() ? eyeOffIcon : eyeIcon" [size]="18" />
+                </button>
+              </div>
+              <p class="text-sm text-slate-500">La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas y números</p>
+              @if (passwordMismatch() && (form.controls.confirmarPassword.touched || form.controls.confirmarPassword.dirty)) {
+                <p class="text-sm font-medium text-rose-600">Las contraseñas no coinciden.</p>
+              }
+            </label>
+          }
+        }
 
         <div class="flex items-center justify-end gap-3 border-t border-slate-200 pt-5 md:col-span-2">
           <div class="flex items-center gap-3">
-            <app-ui-button type="button" variant="secondary" (click)="close()" [disabled]="isSaving()">Cancelar</app-ui-button>
-            <app-ui-button type="submit" [disabled]="form.invalid || isSaving() || passwordMismatch()">
-              {{ isSaving() ? 'Guardando...' : 'Guardar usuario' }}
+            <app-ui-button type="button" variant="secondary" (click)="close()" [disabled]="isSaving() || isLoadingInitialData()">Cancelar</app-ui-button>
+            <app-ui-button type="submit" [disabled]="form.invalid || isSaving() || passwordMismatch() || isLoadingInitialData()">
+              {{ isSaving() ? 'Guardando...' : (isEditMode() ? 'Guardar cambios' : 'Guardar usuario') }}
             </app-ui-button>
           </div>
         </div>

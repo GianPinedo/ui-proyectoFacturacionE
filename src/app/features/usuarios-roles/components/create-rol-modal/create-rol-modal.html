@@ -1,0 +1,184 @@
+<div class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/45 p-4 md:items-center" (click)="cancel()">
+	<form
+		[formGroup]="rolForm"
+		(ngSubmit)="submit()"
+		class="my-4 w-full max-w-4xl flex flex-col max-h-[calc(100vh-2rem)] overflow-hidden rounded-2xl border border-border bg-[#EEF2F3] shadow-lg"
+		(click)="$event.stopPropagation()"
+	>
+		<!-- Header -->
+		<div class="flex items-start justify-between gap-4 border-b border-slate-200 bg-white px-6 py-5 md:px-8">
+			<div>
+				<h3 class="text-2xl font-extrabold text-primary">{{ isEditMode() ? 'Editar rol' : 'Nuevo rol' }}</h3>
+			</div>
+			<button
+				type="button"
+				class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-200"
+				(click)="cancel()"
+				aria-label="Cerrar"
+				title="Cerrar"
+			>
+				<lucide-angular [img]="closeIcon" [size]="20" />
+			</button>
+		</div>
+
+		<!-- Content -->
+		<div class="grid gap-5 overflow-y-auto p-6 md:grid-cols-2 md:p-8">
+			@if (modulesLoading()) {
+				<!-- Skeletons para nombre -->
+				<div class="flex flex-col gap-2">
+					<div class="h-4 w-20 bg-slate-200 rounded animate-pulse"></div>
+					<app-skeleton height="sm" />
+				</div>
+
+				<!-- Skeletons para descripción -->
+				<div class="flex flex-col gap-2 md:col-span-1">
+					<div class="h-4 w-24 bg-slate-200 rounded animate-pulse"></div>
+					<app-skeleton height="lg" />
+				</div>
+
+				<!-- Skeletons para permisos -->
+				<div class="md:col-span-2 rounded-xl border border-border/70 p-4">
+					<div class="h-4 w-32 bg-slate-200 rounded animate-pulse mb-3"></div>
+					<div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+						@for (i of [1, 2, 3, 4]; track i) {
+							<app-skeleton height="sm" />
+						}
+					</div>
+				</div>
+
+				<!-- Skeletons para módulos -->
+				<div class="md:col-span-2 rounded-xl border border-border/70 p-4">
+					<div class="h-4 w-32 bg-slate-200 rounded animate-pulse mb-3"></div>
+					<div class="space-y-2">
+						@for (i of [1, 2, 3, 4, 5]; track i) {
+							<app-skeleton height="md" />
+						}
+					</div>
+				</div>
+			} @else {
+				<label class="flex flex-col gap-2">
+					<span class="text-sm font-medium text-primary">Nombre *</span>
+					<input
+						type="text"
+						formControlName="nombre"
+						placeholder="Ej: VENDEDOR"
+						class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition placeholder:text-muted/70 focus:border-accent"
+					/>
+					@if (rolForm.get('nombre')?.hasError('required') && rolForm.get('nombre')?.touched) {
+						<span class="text-xs text-red-600">El nombre es requerido</span>
+					}
+				</label>
+
+				<label class="flex flex-col gap-2 md:col-span-1">
+					<span class="text-sm font-medium text-primary">Descripción *</span>
+					<textarea
+						formControlName="descripcion"
+						rows="3"
+						placeholder="Describe el alcance del rol"
+						class="rounded-xl border border-border bg-white px-4 py-2 text-sm text-primary outline-none transition placeholder:text-muted/70 focus:border-accent"
+					></textarea>
+					@if (rolForm.get('descripcion')?.hasError('required') && rolForm.get('descripcion')?.touched) {
+						<span class="text-xs text-red-600">La descripción es requerida</span>
+					}
+				</label>
+
+				<div class="md:col-span-2 rounded-xl border border-border/70 p-4">
+					<p class="mb-3 text-sm font-semibold text-primary">Permisos del rol</p>
+					<div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+						<label class="flex items-center gap-2 text-sm text-primary cursor-pointer hover:opacity-75 transition"><input type="checkbox" formControlName="permisoLectura" class="h-4 w-4 cursor-pointer" /> Lectura</label>
+						<label class="flex items-center gap-2 text-sm text-primary cursor-pointer hover:opacity-75 transition"><input type="checkbox" formControlName="permisoCreacion" class="h-4 w-4 cursor-pointer" /> Creación</label>
+						<label class="flex items-center gap-2 text-sm text-primary cursor-pointer hover:opacity-75 transition"><input type="checkbox" formControlName="permisoActualizacion" class="h-4 w-4 cursor-pointer" /> Actualización</label>
+						<label class="flex items-center gap-2 text-sm text-primary cursor-pointer hover:opacity-75 transition"><input type="checkbox" formControlName="permisoBorracion" class="h-4 w-4 cursor-pointer" /> Borración</label>
+					</div>
+				</div>
+
+				<div class="md:col-span-2 rounded-xl border border-border/70 p-4">
+					<p class="mb-3 text-sm font-semibold text-primary">Selecciona módulos *</p>
+
+					@if (modulos().length === 0) {
+						<p class="text-sm text-muted">No hay módulos disponibles.</p>
+					} @else {
+						<div class="max-h-64 space-y-2 overflow-y-auto pr-1">
+							@for (parent of getRootModules(); track parent.idModulo) {
+								<div class="rounded-lg border border-border/60 p-2">
+									<div class="flex items-start gap-2">
+										@if (hasChildren(parent.idModulo)) {
+											<button
+												type="button"
+												class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded border border-border text-muted hover:text-primary"
+												(click)="toggleExpand(parent.idModulo)"
+												[attr.aria-label]="isExpanded(parent.idModulo) ? 'Contraer módulo' : 'Expandir módulo'"
+											>
+												<lucide-angular [img]="isExpanded(parent.idModulo) ? collapseIcon : expandIcon" [size]="14" />
+											</button>
+										} @else {
+											<span class="mt-0.5 inline-flex h-5 w-5"></span>
+										}
+
+										<label class="flex flex-1 items-start gap-2 text-sm text-primary cursor-pointer hover:opacity-75 transition">
+											<input
+												type="checkbox"
+												class="mt-0.5 h-4 w-4 cursor-pointer"
+												[checked]="isModuleSelected(parent.idModulo)"
+												(change)="toggleModule(parent.idModulo)"
+											/>
+											<span>
+												<strong>{{ parent.nombre }}</strong>
+												<span class="block text-xs text-muted">{{ parent.descripcion }}</span>
+											</span>
+										</label>
+									</div>
+
+									@if (hasChildren(parent.idModulo) && isExpanded(parent.idModulo)) {
+										<div class="mt-2 space-y-2 pl-7">
+											@for (child of getChildModules(parent.idModulo); track child.idModulo) {
+												<label class="flex items-start gap-2 rounded-md border border-border/50 bg-page/40 p-2 text-sm text-primary cursor-pointer hover:bg-page/60 transition">
+													<input
+														type="checkbox"
+														class="mt-0.5 h-4 w-4 cursor-pointer"
+														[checked]="isModuleSelected(child.idModulo)"
+														(change)="toggleModule(child.idModulo)"
+													/>
+													<span>
+														<strong>{{ child.nombre }}</strong>
+														<span class="block text-xs text-muted">{{ child.descripcion }}</span>
+													</span>
+												</label>
+											}
+										</div>
+									}
+								</div>
+							}
+						</div>
+					}
+
+					@if (!hasModuleSelection) {
+						<p class="mt-2 text-xs text-amber-700">Debes seleccionar al menos un módulo.</p>
+					}
+				</div>
+			}
+		</div>
+
+		<!-- Footer -->
+		<div class="flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5 md:px-8 md:py-6">
+			<app-ui-button
+				type="button"
+				variant="secondary"
+				(click)="cancel()"
+				[disabled]="isSaving() || modulesLoading()"
+			>
+				Cancelar
+			</app-ui-button>
+			<app-ui-button
+				type="submit"
+				[disabled]="rolForm.invalid || isSaving() || !hasModuleSelection || modulesLoading()"
+			>
+				@if (isSaving()) {
+					Guardando...
+				} @else {
+					Guardar
+				}
+			</app-ui-button>
+		</div>
+	</form>
+</div>

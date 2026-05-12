@@ -1,0 +1,16 @@
+/* Rol Modal Styles */
+
+input[type='checkbox'] {
+  accent-color: rgb(var(--color-primary, 59 130 246));
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+input[type='checkbox']:hover {
+  transform: scale(1.1);
+}
+
+input[type='checkbox']:focus-visible {
+  outline: 2px solid rgb(var(--color-primary, 59 130 246));
+  outline-offset: 2px;
+}

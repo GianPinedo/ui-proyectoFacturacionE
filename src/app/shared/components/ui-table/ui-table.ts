@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { LucideAngularModule, Pencil, Trash2, UserX } from 'lucide-angular';
+import { LucideAngularModule, KeyRound, ListTree, Pencil, UserCheck, UserX } from 'lucide-angular';
 import { TableColumn } from '../../../core/models/table-column.model';
 import { StatusBadgeComponent } from '../status-badge/status-badge';
 
@@ -18,14 +18,21 @@ export class UiTableComponent {
   @Input() emptyLabel = 'Sin datos disponibles';
   @Input() loading = false;
   @Input() skeletonRows = 6;
+  @Input() showEditAction = true;
+  @Input() showResetPasswordAction = true;
+  @Input() showDisableAccessAction = true;
+  @Input() showViewModulesAction = false;
 
   @Output() readonly editRequested = new EventEmitter<Record<string, string>>();
-  @Output() readonly deleteRequested = new EventEmitter<Record<string, string>>();
+  @Output() readonly resetPasswordRequested = new EventEmitter<Record<string, string>>();
   @Output() readonly disableAccessRequested = new EventEmitter<Record<string, string>>();
+  @Output() readonly viewModulesRequested = new EventEmitter<Record<string, string>>();
 
   readonly editIcon = Pencil;
-  readonly deleteIcon = Trash2;
+  readonly resetPasswordIcon = KeyRound;
   readonly disableAccessIcon = UserX;
+  readonly enableAccessIcon = UserCheck;
+  readonly viewModulesIcon = ListTree;
 
   get skeletonIndexes(): number[] {
     return Array.from({ length: this.skeletonRows }, (_, index) => index);
@@ -35,11 +42,19 @@ export class UiTableComponent {
     this.editRequested.emit(row);
   }
 
-  requestDelete(row: Record<string, string>): void {
-    this.deleteRequested.emit(row);
+  requestResetPassword(row: Record<string, string>): void {
+    this.resetPasswordRequested.emit(row);
   }
 
   requestDisableAccess(row: Record<string, string>): void {
     this.disableAccessRequested.emit(row);
+  }
+
+  requestViewModules(row: Record<string, string>): void {
+    this.viewModulesRequested.emit(row);
+  }
+
+  isInactive(row: Record<string, string>): boolean {
+    return (row[this.statusColumnKey] || '').toUpperCase() === 'INACTIVO';
   }
 }

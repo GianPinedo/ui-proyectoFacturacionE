@@ -40,6 +40,29 @@ export interface ChangePasswordResponse {
   data?: Record<string, unknown>;
 }
 
+export interface UpdateUsuarioEstadoPayload {
+  estado: 'ACTIVO' | 'INACTIVO';
+  motivo: string;
+}
+
+export interface UpdateUsuarioEstadoResponse {
+  status?: string;
+  code?: number;
+  message?: string;
+  data?: Record<string, unknown>;
+}
+
+export interface ResetUsuarioPasswordPayload {
+  passwordNuevo: string;
+}
+
+export interface ResetUsuarioPasswordResponse {
+  status?: string;
+  code?: number;
+  message?: string;
+  data?: Record<string, unknown>;
+}
+
 export interface UsuarioListItem {
   idUsuario: string;
   nombres: string;
@@ -49,6 +72,13 @@ export interface UsuarioListItem {
   rol: string;
   estado: string;
   createdAt: string;
+}
+
+export interface UsuarioDetailResponse {
+  status?: string;
+  code?: number;
+  message?: string;
+  data: UsuarioListItem;
 }
 
 export interface UsuariosListMeta {
@@ -94,4 +124,117 @@ export interface RolesListResponse {
   message?: string;
   data: RolListItem[];
   meta: UsuariosListMeta;
+}
+
+export interface RolDetailResponse {
+  status?: string;
+  code?: number;
+  message?: string;
+  data: RolListItem;
+}
+
+export interface CreateRolPayload {
+  nombre: string;
+  descripcion: string;
+  modulosIds: number[];
+  permisoLectura: boolean;
+  permisoCreacion: boolean;
+  permisoActualizacion: boolean;
+  permisoBorracion: boolean;
+}
+
+export interface CreateRolResponse {
+  status?: string;
+  code?: number;
+  message?: string;
+  data?: Record<string, unknown>;
+}
+
+export interface UpdateRolPayload {
+  nombre: string;
+  descripcion: string;
+}
+
+export interface UpdateRolResponse {
+  status?: string;
+  code?: number;
+  message?: string;
+  data?: Record<string, unknown>;
+}
+
+export interface UpdateRolEstadoPayload {
+  estado: 'ACTIVO' | 'INACTIVO';
+  motivo: string;
+}
+
+export interface UpdateRolEstadoResponse {
+  status?: string;
+  code?: number;
+  message?: string;
+  data?: Record<string, unknown>;
+}
+
+export interface ModuloListItem {
+  idModulo: string;
+  nombre: string;
+  codigo: string;
+  descripcion: string;
+  icono: string;
+  ruta: string;
+  orden: number;
+  estado: string;
+  idModuloPadre?: string | null;
+  hijos?: ModuloListItem[];
+}
+
+export interface ModulosListParams {
+  page: number;
+  size: number;
+  estado?: string;
+}
+
+export interface ModulosListResponse {
+  status?: string;
+  code?: number;
+  message?: string;
+  data: ModuloListItem[];
+  meta: UsuariosListMeta;
+}
+
+export interface AsignarModulosRolPayload {
+  idRol: number;
+  modulosIds: number[];
+  permisoLectura: boolean;
+  permisoCreacion: boolean;
+  permisoActualizacion: boolean;
+  permisoBorracion: boolean;
+}
+
+export interface AsignarModulosRolResponse {
+  status?: string;
+  code?: number;
+  message?: string;
+  data?: Record<string, unknown>;
+}
+
+export interface ModuloPermisoRolItem {
+  idModulo: string;
+  nombre: string;
+  codigo: string;
+  descripcion: string;
+  icono: string;
+  ruta: string;
+  orden: number;
+  permisoLectura: boolean;
+  permisoCreacion: boolean;
+  permisoActualizacion: boolean;
+  permisoBorracion: boolean;
+  estado: string;
+}
+
+export interface ModulosPermisosRolResponse {
+  status?: string;
+  code?: number;
+  message?: string;
+  data: ModuloPermisoRolItem[];
 }
