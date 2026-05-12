@@ -1,1 +1,89 @@
-<app-module-page [title]="title" [subtitle]="subtitle" [columns]="columns" [rows]="rows" buttonLabel="Nuevo" />
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+    <app-page-title [title]="title" [subtitle]="subtitle" />
+    <app-ui-button type="button" (click)="openCreateEmpresaForm()">Nueva empresa</app-ui-button>
+  </div>
+
+  @if (isModalOpen()) {
+    <app-create-empresa-modal
+      [mode]="modalMode()"
+      [initialData]="modalInitialData()"
+      [isSaving]="isSaving()"
+      [isLoadingInitialData]="isLoadingInitialData()"
+      (cancelRequested)="closeEmpresaForm()"
+      (saveRequested)="submitEmpresa($event)"
+    />
+  }
+
+  <app-ui-card>
+    <form class="grid gap-4 md:grid-cols-[160px_1fr_180px_auto_auto] md:items-end" [formGroup]="filtersForm" (ngSubmit)="onSearch()">
+      <label class="flex flex-col gap-2">
+        <span class="text-sm font-medium text-primary">RUC</span>
+        <input
+          formControlName="ruc"
+          inputmode="numeric"
+          placeholder="20123456789"
+          class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition placeholder:text-muted/70 focus:border-accent"
+        />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="text-sm font-medium text-primary">Razón social</span>
+        <input
+          formControlName="razonSocial"
+          placeholder="Buscar por razón social"
+          class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition placeholder:text-muted/70 focus:border-accent"
+        />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="text-sm font-medium text-primary">Estado</span>
+        <select
+          formControlName="estado"
+          class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition focus:border-accent"
+        >
+          <option value="">Todos</option>
+          <option value="ACTIVO">Activo</option>
+          <option value="INACTIVO">Inactivo</option>
+        </select>
+      </label>
+
+      <app-ui-button type="submit" [disabled]="isLoading()" title="Buscar" aria-label="Buscar">
+        Buscar <lucide-angular [img]="searchIcon" [size]="18" />
+      </app-ui-button>
+      <app-ui-button type="button" variant="secondary" [disabled]="isLoading()" (click)="clearFilters()">Limpiar</app-ui-button>
+    </form>
+  </app-ui-card>
+
+  <app-ui-card>
+    <app-ui-table
+      [columns]="columns"
+      [rows]="rows()"
+      [loading]="isLoading()"
+      [skeletonRows]="skeletonRows"
+      [showActions]="true"
+      [showEditAction]="true"
+      [showResetPasswordAction]="false"
+      [showDisableAccessAction]="false"
+      [showDeleteAction]="true"
+      deleteActionLabel="Eliminar empresa"
+      actionsColumnKey="acciones"
+      statusColumnKey="estado"
+      emptyLabel="No se encontraron empresas."
+      (editRequested)="onEditRequested($event)"
+      (deleteRequested)="onDeleteRequested($event)"
+    />
+
+    <app-ui-pagination
+      [page]="pagination().page"
+      [totalPages]="pagination().totalPages"
+      [total]="pagination().total"
+      [pageSize]="filtersForm.controls.pageSize.value"
+      [pageSizeOptions]="pageSizeOptions"
+      [loading]="isLoading()"
+      (pageChange)="goToPage($event)"
+      (pageSizeChange)="onPageSizeChange($event)"
+    />
+  </app-ui-card>
+</section>
+

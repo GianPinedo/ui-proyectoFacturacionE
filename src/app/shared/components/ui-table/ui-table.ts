@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { LucideAngularModule, KeyRound, ListTree, Pencil, UserCheck, UserX } from 'lucide-angular';
+import { LucideAngularModule, KeyRound, ListTree, Pencil, Trash2, UserCheck, UserX } from 'lucide-angular';
 import { TableColumn } from '../../../core/models/table-column.model';
 import { StatusBadgeComponent } from '../status-badge/status-badge';
 
@@ -22,17 +22,21 @@ export class UiTableComponent {
   @Input() showResetPasswordAction = true;
   @Input() showDisableAccessAction = true;
   @Input() showViewModulesAction = false;
+  @Input() showDeleteAction = false;
+  @Input() deleteActionLabel = 'Eliminar';
 
   @Output() readonly editRequested = new EventEmitter<Record<string, string>>();
   @Output() readonly resetPasswordRequested = new EventEmitter<Record<string, string>>();
   @Output() readonly disableAccessRequested = new EventEmitter<Record<string, string>>();
   @Output() readonly viewModulesRequested = new EventEmitter<Record<string, string>>();
+  @Output() readonly deleteRequested = new EventEmitter<Record<string, string>>();
 
   readonly editIcon = Pencil;
   readonly resetPasswordIcon = KeyRound;
   readonly disableAccessIcon = UserX;
   readonly enableAccessIcon = UserCheck;
   readonly viewModulesIcon = ListTree;
+  readonly deleteIcon = Trash2;
 
   get skeletonIndexes(): number[] {
     return Array.from({ length: this.skeletonRows }, (_, index) => index);
@@ -52,6 +56,10 @@ export class UiTableComponent {
 
   requestViewModules(row: Record<string, string>): void {
     this.viewModulesRequested.emit(row);
+  }
+
+  requestDelete(row: Record<string, string>): void {
+    this.deleteRequested.emit(row);
   }
 
   isInactive(row: Record<string, string>): boolean {
