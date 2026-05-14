@@ -1,89 +1,107 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
     <app-page-title [title]="title" [subtitle]="subtitle" />
-    <app-ui-button type="button" (click)="openCreateEmpresaForm()">Nueva empresa</app-ui-button>
+
+    <div class="flex flex-wrap justify-end gap-2">
+      @if (!loading() && !hasEmpresa() && !error()) {
+        <app-ui-button type="button" (click)="openEmpresaModal()">Registrar empresa</app-ui-button>
+      }
+
+      @if (!loading() && hasEmpresa()) {
+        <app-ui-button type="button" variant="secondary" [disabled]="actionLoading()" (click)="openEmpresaModal()">Editar datos</app-ui-button>
+        <app-ui-button type="button" [disabled]="actionLoading()" (click)="onValidarEmisionRequested()">Validar emisión</app-ui-button>
+      }
+    </div>
   </div>
 
-  @if (isModalOpen()) {
-    <app-create-empresa-modal
-      [mode]="modalMode()"
-      [initialData]="modalInitialData()"
-      [isSaving]="isSaving()"
-      [isLoadingInitialData]="isLoadingInitialData()"
-      (cancelRequested)="closeEmpresaForm()"
+  @if (loading()) {
+    <div class="grid gap-4 xl:grid-cols-2">
+      @for (_ of [1, 2, 3, 4]; track $index) {
+        <app-ui-card>
+          <div class="space-y-3">
+            <div class="h-5 w-48 animate-pulse rounded bg-slate-200"></div>
+            <app-skeleton height="lg" />
+            <app-skeleton height="lg" />
+          </div>
+        </app-ui-card>
+      }
+    </div>
+  } @else if (error()) {
+    <app-ui-card>
+      <div class="flex flex-col items-center gap-3 py-8 text-center">
+        <p class="text-base font-semibold text-primary">No se pudo cargar la empresa</p>
+        <p class="text-sm text-muted">{{ error() }}</p>
+        <app-ui-button type="button" (click)="retryLoad()">Reintentar</app-ui-button>
+      </div>
+    </app-ui-card>
+  } @else if (!hasEmpresa()) {
+    <app-ui-card>
+      <div class="mx-auto flex max-w-xl flex-col items-center gap-3 py-10 text-center">
+        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <lucide-angular [img]="buildingIcon" [size]="28" />
+        </div>
+        <h3 class="text-lg font-bold text-primary">No hay empresa emisora registrada</h3>
+        <p class="text-sm text-muted">Registra los datos tributarios de tu empresa para empezar a emitir comprobantes electrónicos.</p>
+        <app-ui-button type="button" (click)="openEmpresaModal()">Registrar empresa</app-ui-button>
+      </div>
+    </app-ui-card>
+  } @else {
+    <div class="grid gap-4 xl:grid-cols-2">
+      <app-empresa-info-card [empresa]="empresa()!" [actionLoading]="actionLoading()" (editRequested)="openEmpresaModal()" (toggleEstadoRequested)="onToggleEstadoRequested()" />
+
+      <app-empresa-configuracion-card
+        [empresa]="empresa()!"
+        [actionLoading]="actionLoading()"
+        (ambienteRequested)="onConfigurarAmbienteRequested()"
+        (proveedorRequested)="onConfigurarProveedorRequested()"
+        (credencialesRequested)="openCredencialesModal()"
+        (validarEmisionRequested)="onValidarEmisionRequested()"
+      />
+
+      <app-empresa-certificado-card
+        [empresa]="empresa()!"
+        [validacion]="certificadoValidacion()"
+        [actionLoading]="actionLoading()"
+        (cargarRequested)="openCertificadoModal()"
+        (validarRequested)="onValidarCertificadoRequested()"
+      />
+
+      <app-empresa-logo-card
+        [empresa]="empresa()!"
+        [actionLoading]="actionLoading()"
+        (uploadRequested)="onUploadLogoRequested($event)"
+        (deleteRequested)="onDeleteLogoRequested()"
+      />
+    </div>
+
+    <app-empresa-validacion-panel [empresa]="empresa()!" [validacion]="validacion()" [loading]="validacionLoading()" />
+  }
+
+  @if (empresaModalOpen()) {
+    <app-empresa-form-modal
+      [mode]="empresaModalMode()"
+      [initialData]="empresaModalInitialData()"
+      [isSaving]="empresaSaving()"
+      [isLoadingInitialData]="false"
+      (cancelRequested)="closeEmpresaModal()"
       (saveRequested)="submitEmpresa($event)"
     />
   }
 
-  <app-ui-card>
-    <form class="grid gap-4 md:grid-cols-[160px_1fr_180px_auto_auto] md:items-end" [formGroup]="filtersForm" (ngSubmit)="onSearch()">
-      <label class="flex flex-col gap-2">
-        <span class="text-sm font-medium text-primary">RUC</span>
-        <input
-          formControlName="ruc"
-          inputmode="numeric"
-          placeholder="20123456789"
-          class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition placeholder:text-muted/70 focus:border-accent"
-        />
-      </label>
-
-      <label class="flex flex-col gap-2">
-        <span class="text-sm font-medium text-primary">Razón social</span>
-        <input
-          formControlName="razonSocial"
-          placeholder="Buscar por razón social"
-          class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition placeholder:text-muted/70 focus:border-accent"
-        />
-      </label>
-
-      <label class="flex flex-col gap-2">
-        <span class="text-sm font-medium text-primary">Estado</span>
-        <select
-          formControlName="estado"
-          class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition focus:border-accent"
-        >
-          <option value="">Todos</option>
-          <option value="ACTIVO">Activo</option>
-          <option value="INACTIVO">Inactivo</option>
-        </select>
-      </label>
-
-      <app-ui-button type="submit" [disabled]="isLoading()" title="Buscar" aria-label="Buscar">
-        Buscar <lucide-angular [img]="searchIcon" [size]="18" />
-      </app-ui-button>
-      <app-ui-button type="button" variant="secondary" [disabled]="isLoading()" (click)="clearFilters()">Limpiar</app-ui-button>
-    </form>
-  </app-ui-card>
-
-  <app-ui-card>
-    <app-ui-table
-      [columns]="columns"
-      [rows]="rows()"
-      [loading]="isLoading()"
-      [skeletonRows]="skeletonRows"
-      [showActions]="true"
-      [showEditAction]="true"
-      [showResetPasswordAction]="false"
-      [showDisableAccessAction]="false"
-      [showDeleteAction]="true"
-      deleteActionLabel="Eliminar empresa"
-      actionsColumnKey="acciones"
-      statusColumnKey="estado"
-      emptyLabel="No se encontraron empresas."
-      (editRequested)="onEditRequested($event)"
-      (deleteRequested)="onDeleteRequested($event)"
+  @if (credencialesModalOpen()) {
+    <app-empresa-credenciales-modal
+      [isSaving]="credencialesSaving()"
+      (cancelRequested)="closeCredencialesModal()"
+      (saveRequested)="submitCredenciales($event)"
     />
+  }
 
-    <app-ui-pagination
-      [page]="pagination().page"
-      [totalPages]="pagination().totalPages"
-      [total]="pagination().total"
-      [pageSize]="filtersForm.controls.pageSize.value"
-      [pageSizeOptions]="pageSizeOptions"
-      [loading]="isLoading()"
-      (pageChange)="goToPage($event)"
-      (pageSizeChange)="onPageSizeChange($event)"
+  @if (certificadoModalOpen()) {
+    <app-empresa-certificado-modal
+      [isSaving]="certificadoSaving()"
+      (cancelRequested)="closeCertificadoModal()"
+      (saveRequested)="submitCertificado($event)"
     />
-  </app-ui-card>
+  }
 </section>
 

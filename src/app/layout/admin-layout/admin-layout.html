@@ -1,5 +1,9 @@
 <div class="flex h-screen bg-page">
-	<app-sidebar [isMobileOpen]="isSidebarOpen" (closeRequested)="closeSidebar()" />
+	<app-sidebar
+		[isMobileOpen]="isSidebarOpen"
+		(closeRequested)="closeSidebar()"
+		(collapsedChanged)="onSidebarCollapsedChanged($event)"
+	/>
 
 	@if (isSidebarOpen) {
 		<button
@@ -10,7 +14,10 @@
 		></button>
 	}
 
-	<div class="ml-0 flex min-w-0 flex-1 flex-col lg:ml-[280px]">
+	<div
+		class="admin-layout-content ml-0 flex min-w-0 flex-1 flex-col transition-all duration-200"
+		[style.--sidebar-offset.px]="isSidebarCollapsed ? 80 : 280"
+	>
 		<app-topbar (menuRequested)="toggleSidebar()" />
 
 		<main class="min-h-0 flex-1 overflow-y-auto p-5 md:p-7">

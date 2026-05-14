@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule, Menu } from 'lucide-angular';
 import {
   BookMarked,
   Boxes,
@@ -29,6 +29,10 @@ import { NavigationItem } from '../../core/models/navigation-item.model';
 export class SidebarComponent {
   @Input() isMobileOpen = false;
   @Output() readonly closeRequested = new EventEmitter<void>();
+  @Output() readonly collapsedChanged = new EventEmitter<boolean>();
+
+  readonly isCollapsed = signal(false);
+  readonly menuIcon = Menu;
 
   readonly menuItems: NavigationItem[] = [
     { label: 'Inicio', path: '/inicio', icon: House },
@@ -47,6 +51,11 @@ export class SidebarComponent {
     { label: 'Reportes tributarios', path: '/reportes-tributarios', icon: ReceiptText },
     { label: 'Auditoría', path: '/auditoria', icon: FileClock },
   ];
+
+  toggleCollapse(): void {
+    this.isCollapsed.update((value) => !value);
+    this.collapsedChanged.emit(this.isCollapsed());
+  }
 
   closeOnMobile(): void {
     this.closeRequested.emit();

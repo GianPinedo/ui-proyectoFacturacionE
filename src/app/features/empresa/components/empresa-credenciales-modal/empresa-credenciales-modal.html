@@ -1,0 +1,37 @@
+<div class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/45 p-4 md:items-center" (click)="close()">
+  <div class="my-4 w-full max-w-lg" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Registrar credenciales de emisión">
+    <div class="flex flex-col overflow-hidden rounded-3xl border border-border bg-[#EEF2F3] shadow-xl">
+      <div class="flex items-start justify-between gap-4 border-b border-slate-200 bg-white px-6 py-5">
+        <h3 class="text-xl font-extrabold text-primary">Registrar credenciales</h3>
+        <button type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-200" (click)="close()" aria-label="Cerrar" title="Cerrar">
+          <lucide-angular [img]="closeIcon" [size]="20" />
+        </button>
+      </div>
+
+      <form class="grid gap-4 p-6" [formGroup]="form" (ngSubmit)="submit()">
+        <label class="flex flex-col gap-2">
+          <span class="text-sm font-semibold text-slate-700">Usuario SOL/OSE <span class="text-rose-500">*</span></span>
+          <input formControlName="usuarioSol" class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition focus:border-accent" />
+        </label>
+
+        <label class="flex flex-col gap-2">
+          <span class="text-sm font-semibold text-slate-700">Clave SOL/OSE <span class="text-rose-500">*</span></span>
+          <input type="password" formControlName="claveSol" class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition focus:border-accent" />
+        </label>
+
+        <label class="flex flex-col gap-2">
+          <span class="text-sm font-semibold text-slate-700">Confirmar clave <span class="text-rose-500">*</span></span>
+          <input type="password" formControlName="confirmacionClaveSol" class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition focus:border-accent" />
+          @if (form.controls.confirmacionClaveSol.touched && form.controls.confirmacionClaveSol.hasError('mismatch')) {
+            <span class="text-xs text-rose-600">Las claves no coinciden.</span>
+          }
+        </label>
+
+        <div class="flex items-center justify-end gap-3 border-t border-slate-200 pt-4">
+          <app-ui-button type="button" variant="secondary" (click)="close()" [disabled]="isSaving()">Cancelar</app-ui-button>
+          <app-ui-button type="submit" [disabled]="form.invalid || isSaving()">{{ isSaving() ? 'Guardando...' : 'Guardar credenciales' }}</app-ui-button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

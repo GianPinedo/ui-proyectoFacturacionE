@@ -1,0 +1,21 @@
+<app-ui-card>
+  <div class="space-y-4">
+    <div class="flex items-center justify-between gap-3">
+      <h4 class="text-base font-bold text-primary">Certificado digital</h4>
+      <app-status-badge [status]="statusLabel" />
+    </div>
+
+    <div class="grid gap-3 text-sm md:grid-cols-2">
+      <div><span class="text-muted">Estado:</span> <strong class="text-primary">{{ statusLabel }}</strong></div>
+      <div><span class="text-muted">Archivo:</span> <strong class="text-primary">{{ empresa().tieneCertificado ? 'Cargado' : 'No cargado' }}</strong></div>
+      <div><span class="text-muted">Fecha de inicio:</span> <strong class="text-primary">{{ validacion()?.fechaInicio || '-' }}</strong></div>
+      <div><span class="text-muted">Fecha de vencimiento:</span> <strong class="text-primary">{{ validacion()?.fechaVencimiento || '-' }}</strong></div>
+      <div class="md:col-span-2"><span class="text-muted">Mensaje:</span> <strong class="text-primary">{{ validacion()?.mensaje || 'Aún no se ha validado el certificado.' }}</strong></div>
+    </div>
+
+    <div class="flex flex-wrap justify-end gap-3 border-t border-border/70 pt-4">
+      <app-ui-button type="button" variant="secondary" [disabled]="actionLoading()" (click)="cargarRequested.emit()">Cargar certificado</app-ui-button>
+      <app-ui-button type="button" [disabled]="actionLoading()" (click)="validarRequested.emit()">Validar certificado</app-ui-button>
+    </div>
+  </div>
+</app-ui-card>
