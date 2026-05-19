@@ -11,6 +11,7 @@ import { TopbarComponent } from '../topbar/topbar';
 })
 export class AdminLayoutComponent {
   isSidebarOpen = false;
+  isSidebarCollapsed = false;
 
   toggleSidebar(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
@@ -18,5 +19,9 @@ export class AdminLayoutComponent {
 
   closeSidebar(): void {
     this.isSidebarOpen = false;
+  }
+
+  onSidebarCollapsedChanged(isCollapsed: boolean): void {
+    this.isSidebarCollapsed = isCollapsed;
   }
 }

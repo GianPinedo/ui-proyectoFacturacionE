@@ -1,215 +1,208 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { LucideAngularModule, Search } from 'lucide-angular';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { LucideAngularModule, Building2 } from 'lucide-angular';
 import Swal from 'sweetalert2';
 import { AppMessages } from '../../core/constants/app-messages';
-import { EmpresaListItem } from '../../core/models/empresa.model';
-import { TableColumn } from '../../core/models/table-column.model';
-import { UsuariosListMeta } from '../../core/models/usuario.model';
+import {
+  CertificadoValidacionResponse,
+  EmpresaAmbienteEmision,
+  EmpresaCreateRequest,
+  EmpresaCredencialesRequest,
+  EmpresaEstado,
+  EmpresaResponse,
+  EmpresaUpdateRequest,
+  EmpresaValidacionEmisionResponse,
+} from '../../core/models/empresa.model';
 import { EmpresasService } from '../../core/services/empresas.service';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { PageTitleComponent } from '../../shared/components/page-title/page-title';
 import { UiButtonComponent } from '../../shared/components/ui-button/ui-button';
 import { UiCardComponent } from '../../shared/components/ui-card/ui-card';
-import { UiPaginationComponent } from '../../shared/components/ui-pagination/ui-pagination';
-import { UiTableComponent } from '../../shared/components/ui-table/ui-table';
 import {
-  CreateEmpresaModalComponent,
-  EmpresaFormModalInitialData,
+  EmpresaFormModalComponent,
+  EmpresaFormModalData,
   EmpresaFormModalMode,
-  EmpresaFormModalPayload,
-} from './components/create-empresa-modal/create-empresa-modal';
+  EmpresaFormModalSubmitPayload,
+} from './components/empresa-form-modal/empresa-form-modal';
+import { EmpresaCredencialesModalComponent } from './components/empresa-credenciales-modal/empresa-credenciales-modal';
+import {
+  EmpresaCertificadoModalComponent,
+  EmpresaCertificadoSubmitPayload,
+} from './components/empresa-certificado-modal/empresa-certificado-modal';
+import { EmpresaInfoCardComponent } from './components/empresa-info-card/empresa-info-card';
+import { EmpresaConfiguracionCardComponent } from './components/empresa-configuracion-card/empresa-configuracion-card';
+import { EmpresaCertificadoCardComponent } from './components/empresa-certificado-card/empresa-certificado-card';
+import { EmpresaLogoCardComponent } from './components/empresa-logo-card/empresa-logo-card';
+import { EmpresaValidacionPanelComponent } from './components/empresa-validacion-panel/empresa-validacion-panel';
 
 @Component({
   selector: 'app-empresa',
   imports: [
-    ReactiveFormsModule,
     LucideAngularModule,
     PageTitleComponent,
     UiButtonComponent,
     UiCardComponent,
-    UiTableComponent,
-    UiPaginationComponent,
-    CreateEmpresaModalComponent,
+    SkeletonComponent,
+    EmpresaFormModalComponent,
+    EmpresaCredencialesModalComponent,
+    EmpresaCertificadoModalComponent,
+    EmpresaInfoCardComponent,
+    EmpresaConfiguracionCardComponent,
+    EmpresaCertificadoCardComponent,
+    EmpresaLogoCardComponent,
+    EmpresaValidacionPanelComponent,
   ],
   templateUrl: './empresa.html',
   styleUrl: './empresa.css',
 })
 export class EmpresaComponent implements OnInit {
   private readonly empresasService = inject(EmpresasService);
-  private readonly fb = inject(FormBuilder);
+
+  @ViewChild(EmpresaLogoCardComponent) logoCardComponent?: EmpresaLogoCardComponent;
 
   readonly title = 'Empresa';
   readonly subtitle = 'Configura los datos tributarios y la emisión electrónica.';
-  readonly pageSizeOptions = [5, 10, 20];
-  readonly defaultPageSize = 10;
-  readonly searchIcon = Search;
+  readonly buildingIcon = Building2;
 
-  readonly filtersForm = this.fb.nonNullable.group({
-    ruc: [''],
-    razonSocial: [''],
-    estado: [''],
-    pageSize: [this.defaultPageSize],
-  });
+  readonly empresa = signal<EmpresaResponse | null>(null);
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
 
-  readonly columns: TableColumn[] = [
-    { key: 'ruc', label: 'RUC' },
-    { key: 'razonSocial', label: 'Razón social' },
-    { key: 'nombreComercial', label: 'Nombre comercial' },
-    { key: 'correo', label: 'Correo' },
-    { key: 'estado', label: 'Estado' },
-    { key: 'createdAt', label: 'Creado' },
-    { key: 'acciones', label: 'Acciones' },
-  ];
+  readonly validacion = signal<EmpresaValidacionEmisionResponse | null>(null);
+  readonly validacionLoading = signal(false);
+  readonly certificadoValidacion = signal<CertificadoValidacionResponse | null>(null);
 
-  readonly rows = signal<Record<string, string>[]>([]);
-  readonly isLoading = signal(false);
-  readonly isSaving = signal(false);
-  readonly isLoadingInitialData = signal(false);
-  readonly isModalOpen = signal(false);
-  readonly modalMode = signal<EmpresaFormModalMode>('create');
-  readonly editingEmpresaId = signal<string | null>(null);
-  readonly modalInitialData = signal<EmpresaFormModalInitialData | null>(null);
+  readonly empresaModalOpen = signal(false);
+  readonly credencialesModalOpen = signal(false);
+  readonly certificadoModalOpen = signal(false);
 
-  readonly pagination = signal<UsuariosListMeta>({
-    page: 0,
-    limit: this.defaultPageSize,
-    total: 0,
-    totalPages: 0,
-  });
+  readonly empresaModalMode = signal<EmpresaFormModalMode>('create');
+  readonly empresaModalInitialData = signal<EmpresaFormModalData | null>(null);
+
+  readonly empresaSaving = signal(false);
+  readonly credencialesSaving = signal(false);
+  readonly certificadoSaving = signal(false);
+  readonly actionLoading = signal(false);
+
+  readonly hasEmpresa = computed(() => !!this.empresa());
 
   ngOnInit(): void {
-    this.loadEmpresas(0);
+    this.loadEmpresaPrincipal();
   }
 
-  onSearch(): void {
-    this.loadEmpresas(0);
+  openEmpresaModal(): void {
+    this.empresaModalMode.set(this.empresa() ? 'edit' : 'create');
+    this.empresaModalInitialData.set(this.toModalData(this.empresa()));
+    this.empresaModalOpen.set(true);
   }
 
-  clearFilters(): void {
-    this.filtersForm.reset({
-      ruc: '',
-      razonSocial: '',
-      estado: '',
-      pageSize: this.defaultPageSize,
-    });
-    this.loadEmpresas(0);
+  closeEmpresaModal(): void {
+    this.empresaModalOpen.set(false);
+    this.empresaModalInitialData.set(null);
   }
 
-  openCreateEmpresaForm(): void {
-    this.modalMode.set('create');
-    this.editingEmpresaId.set(null);
-    this.modalInitialData.set(null);
-    this.isModalOpen.set(true);
+  openCredencialesModal(): void {
+    this.credencialesModalOpen.set(true);
   }
 
-  closeEmpresaForm(): void {
-    this.isModalOpen.set(false);
-    this.editingEmpresaId.set(null);
-    this.modalInitialData.set(null);
-    this.isLoadingInitialData.set(false);
+  closeCredencialesModal(): void {
+    this.credencialesModalOpen.set(false);
   }
 
-  submitEmpresa(payload: EmpresaFormModalPayload): void {
-    if (this.modalMode() === 'edit') {
-      this.submitEditEmpresa(payload);
+  openCertificadoModal(): void {
+    this.certificadoModalOpen.set(true);
+  }
+
+  closeCertificadoModal(): void {
+    this.certificadoModalOpen.set(false);
+  }
+
+  submitEmpresa(payload: EmpresaFormModalSubmitPayload): void {
+    const current = this.empresa();
+
+    if (!current) {
+      this.createEmpresa(payload.createRequest);
       return;
     }
 
-    this.isSaving.set(true);
+    this.updateEmpresa(current.idEmpresa, payload.updateRequest);
+  }
 
-    this.empresasService.createEmpresa(payload).subscribe({
-      next: (response) => {
-        this.isSaving.set(false);
+  submitCredenciales(request: EmpresaCredencialesRequest): void {
+    const current = this.empresa();
+    if (!current) {
+      return;
+    }
 
-        void Swal.fire({
-          icon: 'success',
-          title: 'Empresa creada',
-          text: response.message || 'La empresa fue registrada correctamente.',
-          confirmButtonText: 'Aceptar',
-          confirmButtonColor: '#00AD8F',
-        });
+    this.credencialesSaving.set(true);
 
-        this.closeEmpresaForm();
-        this.loadEmpresas(0);
+    this.empresasService.updateCredenciales(current.idEmpresa, request).subscribe({
+      next: () => {
+        this.credencialesSaving.set(false);
+        this.closeCredencialesModal();
+        this.showSuccess('Credenciales registradas', 'Las credenciales de emisión fueron guardadas.');
+        this.refreshEmpresa();
       },
       error: (error: unknown) => {
-        this.isSaving.set(false);
-        this.showError('Error al crear empresa', this.extractErrorMessage(error) || AppMessages.GENERIC_SAVE_ERROR);
+        this.credencialesSaving.set(false);
+        this.showError('Error al registrar credenciales', this.extractErrorMessage(error) || AppMessages.GENERIC_SAVE_ERROR);
       },
     });
   }
 
-  onEditRequested(row: Record<string, string>): void {
-    const idEmpresa = row['idEmpresa'];
-
-    if (!idEmpresa) {
+  submitCertificado(payload: EmpresaCertificadoSubmitPayload): void {
+    const current = this.empresa();
+    if (!current) {
       return;
     }
 
-    this.modalMode.set('edit');
-    this.editingEmpresaId.set(idEmpresa);
-    this.modalInitialData.set(null);
-    this.isModalOpen.set(true);
-    this.isLoadingInitialData.set(true);
+    this.certificadoSaving.set(true);
 
-    this.empresasService.getEmpresaById(idEmpresa).subscribe({
-      next: (response) => {
-        this.isLoadingInitialData.set(false);
-        const empresa = response.data;
-
-        this.modalInitialData.set({
-          ruc: empresa.ruc,
-          razonSocial: empresa.razonSocial,
-          nombreComercial: empresa.nombreComercial ?? '',
-          direccion: empresa.direccion,
-          ubigeo: empresa.ubigeo ?? '',
-          correo: empresa.correo ?? '',
-          telefono: empresa.telefono ?? '',
-        });
-      },
-      error: (error: unknown) => {
-        this.closeEmpresaForm();
-        this.showError('Error al cargar empresa', this.extractErrorMessage(error) || AppMessages.GENERIC_LOAD_ERROR);
-      },
-    });
-  }
-
-  onDeleteRequested(row: Record<string, string>): void {
-    const idEmpresa = row['idEmpresa'];
-    const razonSocial = row['razonSocial'] || 'empresa';
-    const isInactive = (row['estado'] || '').toUpperCase() === 'INACTIVO';
-
-    if (!idEmpresa) {
-      return;
-    }
-
-    if (isInactive) {
-      void Swal.fire({
-        icon: 'info',
-        title: 'Empresa inactiva',
-        text: 'La empresa ya se encuentra inactiva.',
-        confirmButtonText: 'Aceptar',
-        confirmButtonColor: '#00AD8F',
+    this.empresasService
+      .uploadCertificado(current.idEmpresa, payload.file, payload.clave, payload.confirmacionClave)
+      .subscribe({
+        next: () => {
+          this.certificadoSaving.set(false);
+          this.closeCertificadoModal();
+          this.showSuccess('Certificado cargado', 'El certificado digital fue cargado correctamente.');
+          this.refreshEmpresa();
+        },
+        error: (error: unknown) => {
+          this.certificadoSaving.set(false);
+          this.showError('Error al cargar certificado', this.extractErrorMessage(error) || AppMessages.GENERIC_SAVE_ERROR);
+        },
       });
+  }
+
+  onToggleEstadoRequested(): void {
+    const current = this.empresa();
+    if (!current) {
       return;
     }
+
+    const isActive = current.estado === 'ACTIVO';
+    const nextEstado: EmpresaEstado = isActive ? 'INACTIVO' : 'ACTIVO';
 
     void Swal.fire({
       icon: 'warning',
-      title: 'Eliminar empresa',
-      text: `Se desactivará la empresa ${razonSocial}.`,
+      title: isActive ? 'Desactivar empresa' : 'Activar empresa',
+      text: isActive ? 'La empresa dejará de emitir comprobantes.' : 'La empresa volverá a estar operativa.',
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
+      confirmButtonText: isActive ? 'Sí, desactivar' : 'Sí, activar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#00AD8F',
       cancelButtonColor: '#6B7280',
       reverseButtons: true,
       preConfirm: () => {
         return new Promise<void>((resolve, reject) => {
-          this.empresasService.updateEmpresaEstado(idEmpresa, { estado: 'INACTIVO' }).subscribe({
-            next: () => resolve(),
-            error: (error: unknown) => reject(new Error(this.extractErrorMessage(error) || AppMessages.GENERIC_STATUS_UPDATE_ERROR)),
-          });
+          this.empresasService
+            .changeEstado(current.idEmpresa, {
+              estado: nextEstado,
+            })
+            .subscribe({
+              next: () => resolve(),
+              error: (error: unknown) => reject(new Error(this.extractErrorMessage(error) || AppMessages.GENERIC_STATUS_UPDATE_ERROR)),
+            });
         }).catch((error: Error) => {
           Swal.showValidationMessage(error.message);
         });
@@ -220,145 +213,409 @@ export class EmpresaComponent implements OnInit {
         return;
       }
 
-      void Swal.fire({
-        icon: 'success',
-        title: 'Empresa eliminada',
-        text: 'La empresa fue desactivada correctamente.',
-        confirmButtonText: 'Aceptar',
-        confirmButtonColor: '#00AD8F',
-      });
-
-      this.loadEmpresas(this.pagination().page);
+      this.showSuccess('Estado actualizado', isActive ? 'La empresa fue desactivada.' : 'La empresa fue activada.');
+      this.refreshEmpresa();
     });
   }
 
-  onPageSizeChange(size: number): void {
-    this.filtersForm.controls.pageSize.setValue(size);
-
-    if (!Number.isFinite(size) || size <= 0) {
+  onConfigurarAmbienteRequested(): void {
+    const current = this.empresa();
+    if (!current) {
       return;
     }
 
-    this.pagination.update((current) => ({
-      ...current,
-      limit: size,
-      page: 0,
-    }));
+    void Swal.fire({
+      title: 'Configurar ambiente de emisión',
+      input: 'select',
+      inputOptions: {
+        BETA: 'BETA',
+        PRODUCCION: 'PRODUCCIÓN',
+      },
+      inputValue: current.ambienteEmision,
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#00AD8F',
+      cancelButtonColor: '#6B7280',
+    }).then((result) => {
+      if (!result.isConfirmed || !result.value) {
+        return;
+      }
 
-    this.loadEmpresas(0);
+      const nextAmbiente = String(result.value) as EmpresaAmbienteEmision;
+
+      if (nextAmbiente === 'PRODUCCION' && (!current.tieneCertificado || !current.tieneCredenciales)) {
+        void Swal.fire({
+          icon: 'warning',
+          title: 'Advertencia',
+          text: 'Para PRODUCCIÓN se recomienda tener certificado y credenciales registradas.',
+          showCancelButton: true,
+          confirmButtonText: 'Continuar',
+          cancelButtonText: 'Cancelar',
+          confirmButtonColor: '#00AD8F',
+          cancelButtonColor: '#6B7280',
+        }).then((confirmResult) => {
+          if (!confirmResult.isConfirmed) {
+            return;
+          }
+
+          this.updateAmbiente(current.idEmpresa, nextAmbiente);
+        });
+        return;
+      }
+
+      this.updateAmbiente(current.idEmpresa, nextAmbiente);
+    });
   }
 
-  goToPage(pageNumber: number): void {
-    const totalPages = this.pagination().totalPages;
-
-    if (this.isLoading() || pageNumber < 0 || pageNumber >= totalPages || pageNumber === this.pagination().page) {
+  onConfigurarProveedorRequested(): void {
+    const current = this.empresa();
+    if (!current) {
       return;
     }
 
-    this.loadEmpresas(pageNumber);
+    void Swal.fire({
+      title: 'Configurar proveedor de emisión',
+      input: 'select',
+      inputOptions: {
+        SUNAT: 'SUNAT',
+        OSE: 'OSE',
+      },
+      inputValue: current.proveedorEmision,
+      showCancelButton: true,
+      confirmButtonText: 'Siguiente',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#00AD8F',
+      cancelButtonColor: '#6B7280',
+    }).then((result) => {
+      if (!result.isConfirmed || !result.value) {
+        return;
+      }
+
+      const proveedor = String(result.value) as 'SUNAT' | 'OSE';
+
+      if (proveedor === 'OSE') {
+        void Swal.fire({
+          title: 'Endpoint de envío OSE',
+          input: 'text',
+          inputValue: current.endpointEnvio || '',
+          inputPlaceholder: 'https://ose.ejemplo.com/api/envio',
+          inputValidator: (value) => {
+            if (!value?.trim()) {
+              return 'El endpoint es obligatorio para OSE.';
+            }
+
+            return null;
+          },
+          showCancelButton: true,
+          confirmButtonText: 'Guardar',
+          cancelButtonText: 'Cancelar',
+          confirmButtonColor: '#00AD8F',
+          cancelButtonColor: '#6B7280',
+        }).then((endpointResult) => {
+          if (!endpointResult.isConfirmed) {
+            return;
+          }
+
+          this.updateProveedor(current.idEmpresa, proveedor, String(endpointResult.value ?? '').trim());
+        });
+        return;
+      }
+
+      this.updateProveedor(current.idEmpresa, proveedor, current.endpointEnvio);
+    });
   }
 
-  get skeletonRows(): number {
-    const size = Number(this.filtersForm.controls.pageSize.value);
-    return Number.isFinite(size) && size > 0 ? size : this.defaultPageSize;
-  }
-
-  private submitEditEmpresa(payload: EmpresaFormModalPayload): void {
-    const editingId = this.editingEmpresaId();
-
-    if (!editingId) {
+  onUploadLogoRequested(file: File): void {
+    const current = this.empresa();
+    if (!current) {
       return;
     }
 
-    this.isSaving.set(true);
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    const maxSize = 2 * 1024 * 1024;
 
-    this.empresasService.updateEmpresa(editingId, payload).subscribe({
-      next: (response) => {
-        this.isSaving.set(false);
+    if (!allowedTypes.includes(file.type)) {
+      this.showError('Archivo inválido', 'Solo se permiten archivos PNG, JPG, JPEG o WEBP.');
+      return;
+    }
+
+    if (file.size > maxSize) {
+      this.showError('Archivo demasiado grande', 'El logo no debe superar 2 MB.');
+      return;
+    }
+
+    this.actionLoading.set(true);
+    this.empresasService.uploadLogo(current.idEmpresa, file).subscribe({
+      next: () => {
+        this.actionLoading.set(false);
+        this.logoCardComponent?.clearPreview();
+        this.showSuccess('Logo actualizado', 'El logo de la empresa fue cargado correctamente.');
+        this.refreshEmpresa();
+      },
+      error: (error: unknown) => {
+        this.actionLoading.set(false);
+        this.showError('Error al cargar logo', this.extractErrorMessage(error) || AppMessages.GENERIC_SAVE_ERROR);
+      },
+    });
+  }
+
+  onDeleteLogoRequested(): void {
+    const current = this.empresa();
+    if (!current) {
+      return;
+    }
+
+    void Swal.fire({
+      icon: 'warning',
+      title: 'Eliminar logo',
+      text: 'Se eliminará el logo actual de la empresa.',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#00AD8F',
+      cancelButtonColor: '#6B7280',
+      reverseButtons: true,
+    }).then((result) => {
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      this.actionLoading.set(true);
+      this.empresasService.deleteLogo(current.idEmpresa).subscribe({
+        next: () => {
+          this.actionLoading.set(false);
+          this.showSuccess('Logo eliminado', 'El logo fue eliminado correctamente.');
+          this.refreshEmpresa();
+        },
+        error: (error: unknown) => {
+          this.actionLoading.set(false);
+          this.showError('Error al eliminar logo', this.extractErrorMessage(error) || AppMessages.GENERIC_UPDATE_ERROR);
+        },
+      });
+    });
+  }
+
+  onValidarCertificadoRequested(): void {
+    const current = this.empresa();
+    if (!current) {
+      return;
+    }
+
+    this.actionLoading.set(true);
+    this.empresasService.validarCertificado(current.idEmpresa).subscribe({
+      next: (result) => {
+        this.actionLoading.set(false);
+        this.certificadoValidacion.set(result);
 
         void Swal.fire({
-          icon: 'success',
-          title: 'Empresa actualizada',
-          text: response.message || 'Los cambios se guardaron correctamente.',
+          icon: result.valido ? 'success' : 'warning',
+          title: result.valido ? 'Certificado válido' : 'Certificado inválido',
+          text: result.mensaje,
           confirmButtonText: 'Aceptar',
           confirmButtonColor: '#00AD8F',
         });
-
-        this.closeEmpresaForm();
-        this.loadEmpresas(this.pagination().page);
       },
       error: (error: unknown) => {
-        this.isSaving.set(false);
-        this.showError('Error al actualizar', this.extractErrorMessage(error) || AppMessages.GENERIC_UPDATE_ERROR);
+        this.actionLoading.set(false);
+        this.showError('Error al validar certificado', this.extractErrorMessage(error) || AppMessages.GENERIC_LOAD_ERROR);
       },
     });
   }
 
-  private loadEmpresas(page: number): void {
-    this.isLoading.set(true);
+  onValidarEmisionRequested(): void {
+    const current = this.empresa();
+    if (!current) {
+      return;
+    }
 
-    const { ruc, razonSocial, estado, pageSize } = this.filtersForm.getRawValue();
-    const currentLimit = Number(pageSize) || this.defaultPageSize;
+    this.validacionLoading.set(true);
+    this.empresasService.validarEmision(current.idEmpresa).subscribe({
+      next: (result) => {
+        this.validacionLoading.set(false);
+        this.validacion.set(result);
+        this.empresa.update((value) => {
+          if (!value) {
+            return value;
+          }
 
-    this.empresasService
-      .getEmpresas({
-        page,
-        size: currentLimit,
-        ruc,
-        razonSocial,
-        estado: estado as 'ACTIVO' | 'INACTIVO' | '',
-      })
-      .subscribe({
-        next: (response) => {
-          this.pagination.set(
-            response.meta
-              ? { ...response.meta, limit: currentLimit }
-              : {
-                  page,
-                  limit: currentLimit,
-                  total: response.data?.length ?? 0,
-                  totalPages: 1,
-                },
-          );
+          return {
+            ...value,
+            listaParaEmitir: result.listaParaEmitir,
+          };
+        });
 
-          this.rows.set((response.data ?? []).map((item) => this.toTableRow(item)));
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.rows.set([]);
-          this.isLoading.set(false);
-        },
-      });
+        void Swal.fire({
+          icon: result.listaParaEmitir ? 'success' : 'warning',
+          title: result.listaParaEmitir ? 'Empresa lista para emitir' : 'Configuración incompleta',
+          text: result.listaParaEmitir
+            ? 'La empresa cuenta con lo necesario para emitir comprobantes.'
+            : 'Aún hay pendientes por completar.',
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#00AD8F',
+        });
+      },
+      error: (error: unknown) => {
+        this.validacionLoading.set(false);
+        this.showError('Error al validar emisión', this.extractErrorMessage(error) || AppMessages.GENERIC_LOAD_ERROR);
+      },
+    });
   }
 
-  private toTableRow(item: EmpresaListItem): Record<string, string> {
+  retryLoad(): void {
+    this.loadEmpresaPrincipal();
+  }
+
+  private createEmpresa(request: EmpresaCreateRequest): void {
+    this.empresaSaving.set(true);
+
+    this.empresasService.create(request).subscribe({
+      next: () => {
+        this.empresaSaving.set(false);
+        this.closeEmpresaModal();
+        this.showSuccess('Empresa registrada', 'La empresa fue registrada correctamente.');
+        this.loadEmpresaPrincipal();
+      },
+      error: (error: unknown) => {
+        this.empresaSaving.set(false);
+        this.showError('Error al registrar empresa', this.extractErrorMessage(error) || AppMessages.GENERIC_SAVE_ERROR);
+      },
+    });
+  }
+
+  private updateEmpresa(idEmpresa: number, request: EmpresaUpdateRequest): void {
+    this.empresaSaving.set(true);
+
+    this.empresasService.update(idEmpresa, request).subscribe({
+      next: () => {
+        this.empresaSaving.set(false);
+        this.closeEmpresaModal();
+        this.showSuccess('Empresa actualizada', 'Los cambios de la empresa fueron guardados.');
+        this.refreshEmpresa();
+      },
+      error: (error: unknown) => {
+        this.empresaSaving.set(false);
+        this.showError('Error al actualizar empresa', this.extractErrorMessage(error) || AppMessages.GENERIC_UPDATE_ERROR);
+      },
+    });
+  }
+
+  private updateAmbiente(idEmpresa: number, ambiente: EmpresaAmbienteEmision): void {
+    this.actionLoading.set(true);
+
+    this.empresasService.updateAmbiente(idEmpresa, { ambienteEmision: ambiente }).subscribe({
+      next: () => {
+        this.actionLoading.set(false);
+        this.showSuccess('Ambiente actualizado', 'El ambiente de emisión fue actualizado.');
+        this.refreshEmpresa();
+      },
+      error: (error: unknown) => {
+        this.actionLoading.set(false);
+        this.showError('Error al actualizar ambiente', this.extractErrorMessage(error) || AppMessages.GENERIC_UPDATE_ERROR);
+      },
+    });
+  }
+
+  private updateProveedor(idEmpresa: number, proveedor: 'SUNAT' | 'OSE', endpointEnvio?: string): void {
+    this.actionLoading.set(true);
+
+    this.empresasService.updateProveedor(idEmpresa, { proveedorEmision: proveedor, endpointEnvio }).subscribe({
+      next: () => {
+        this.actionLoading.set(false);
+        this.showSuccess('Proveedor actualizado', 'La configuración de proveedor fue actualizada.');
+        this.refreshEmpresa();
+      },
+      error: (error: unknown) => {
+        this.actionLoading.set(false);
+        this.showError('Error al actualizar proveedor', this.extractErrorMessage(error) || AppMessages.GENERIC_UPDATE_ERROR);
+      },
+    });
+  }
+
+  private refreshEmpresa(): void {
+    this.loadEmpresaPrincipal(false);
+  }
+
+  private loadEmpresaPrincipal(showLoading = true): void {
+    if (showLoading) {
+      this.loading.set(true);
+    }
+
+    this.error.set(null);
+
+    this.empresasService.getEmpresaPrincipal().subscribe({
+      next: (empresa) => {
+        this.empresa.set(empresa);
+        this.error.set(null);
+        this.loadValidacion(empresa.idEmpresa);
+
+        if (showLoading) {
+          this.loading.set(false);
+        }
+      },
+      error: (error: unknown) => {
+        if (showLoading) {
+          this.loading.set(false);
+        }
+
+        const status = error instanceof HttpErrorResponse ? error.status : undefined;
+
+        if (status === 404) {
+          this.empresa.set(null);
+          this.validacion.set(null);
+          this.error.set(null);
+          return;
+        }
+
+        this.empresa.set(null);
+        this.validacion.set(null);
+        this.error.set(this.extractErrorMessage(error) || AppMessages.GENERIC_LOAD_ERROR);
+      },
+    });
+  }
+
+  private loadValidacion(idEmpresa: number): void {
+    this.validacionLoading.set(true);
+
+    this.empresasService.validarEmision(idEmpresa).subscribe({
+      next: (result) => {
+        this.validacionLoading.set(false);
+        this.validacion.set(result);
+      },
+      error: () => {
+        this.validacionLoading.set(false);
+        this.validacion.set(null);
+      },
+    });
+  }
+
+  private toModalData(empresa: EmpresaResponse | null): EmpresaFormModalData | null {
+    if (!empresa) {
+      return null;
+    }
+
     return {
-      idEmpresa: String(item.idEmpresa),
-      ruc: item.ruc,
-      razonSocial: item.razonSocial,
-      nombreComercial: item.nombreComercial || '-',
-      correo: item.correo || '-',
-      estado: this.formatStatus(item.estadoTexto || (item.estado ? 'ACTIVO' : 'INACTIVO')),
-      createdAt: this.formatDate(item.createdAt),
+      ruc: empresa.ruc,
+      razonSocial: empresa.razonSocial,
+      nombreComercial: empresa.nombreComercial,
+      direccion: empresa.direccion,
+      ubigeo: empresa.ubigeo,
+      departamento: empresa.departamento,
+      provincia: empresa.provincia,
+      distrito: empresa.distrito,
+      correo: empresa.correo,
+      telefono: empresa.telefono,
     };
   }
 
-  private formatStatus(value: string): string {
-    return value.toLowerCase() === 'activo' ? 'Activo' : value;
-  }
-
-  private formatDate(value: string): string {
-    if (!value) {
-      return '-';
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return value;
-    }
-
-    return date.toLocaleDateString('es-PE');
+  private showSuccess(title: string, text: string): void {
+    void Swal.fire({
+      icon: 'success',
+      title,
+      text,
+      confirmButtonText: 'Aceptar',
+      confirmButtonColor: '#00AD8F',
+    });
   }
 
   private showError(title: string, text: string): void {
@@ -384,7 +641,7 @@ export class EmpresaComponent implements OnInit {
       }
 
       if (payload && typeof payload === 'object') {
-        const message = (payload as { message?: unknown }).message;
+        const message = (payload as { message?: unknown; errors?: unknown }).message;
 
         if (typeof message === 'string') {
           return message;
@@ -392,6 +649,11 @@ export class EmpresaComponent implements OnInit {
 
         if (Array.isArray(message)) {
           return message.join(' ');
+        }
+
+        const errors = (payload as { errors?: unknown }).errors;
+        if (Array.isArray(errors)) {
+          return errors.filter((item) => typeof item === 'string').join(' ');
         }
       }
 

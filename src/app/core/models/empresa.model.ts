@@ -1,53 +1,99 @@
-import { UsuariosListMeta } from './usuario.model';
+export type EmpresaEstado = 'ACTIVO' | 'INACTIVO';
+export type EmpresaAmbienteEmision = 'BETA' | 'PRODUCCION';
+export type EmpresaProveedorEmision = 'SUNAT' | 'OSE';
 
-export interface EmpresaPayload {
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  errors?: string[];
+}
+
+export interface EmpresaResponse {
+  idEmpresa: number;
   ruc: string;
   razonSocial: string;
   nombreComercial?: string;
   direccion: string;
   ubigeo?: string;
+  departamento?: string;
+  provincia?: string;
+  distrito?: string;
+  correo?: string;
+  telefono?: string;
+  logoUrl?: string;
+  ambienteEmision: EmpresaAmbienteEmision;
+  proveedorEmision: EmpresaProveedorEmision;
+  endpointEnvio?: string;
+  estado: EmpresaEstado;
+  tieneCertificado: boolean;
+  tieneCredenciales: boolean;
+  listaParaEmitir: boolean;
+}
+
+export interface EmpresaCreateRequest {
+  ruc: string;
+  razonSocial: string;
+  nombreComercial?: string;
+  direccion: string;
+  ubigeo?: string;
+  departamento?: string;
+  provincia?: string;
+  distrito?: string;
   correo?: string;
   telefono?: string;
 }
 
-export interface EmpresaListItem {
-  idEmpresa: number;
-  ruc: string;
+export interface EmpresaUpdateRequest {
   razonSocial: string;
-  nombreComercial: string | null;
+  nombreComercial?: string;
   direccion: string;
-  ubigeo: string | null;
-  correo: string | null;
-  telefono: string | null;
-  logoUrl: string | null;
-  estado: boolean;
-  estadoTexto: string;
-  createdAt: string;
+  ubigeo?: string;
+  departamento?: string;
+  provincia?: string;
+  distrito?: string;
+  correo?: string;
+  telefono?: string;
 }
 
-export interface EmpresaResponse {
-  status?: string;
-  code?: number;
-  message?: string;
-  data: EmpresaListItem;
+export interface EmpresaEstadoRequest {
+  estado: EmpresaEstado;
 }
 
-export interface EmpresasListParams {
-  page: number;
-  size: number;
-  ruc?: string;
-  razonSocial?: string;
-  estado?: 'ACTIVO' | 'INACTIVO' | '';
+export interface EmpresaAmbienteRequest {
+  ambienteEmision: EmpresaAmbienteEmision;
 }
 
-export interface EmpresasListResponse {
-  status?: string;
-  code?: number;
-  message?: string;
-  data: EmpresaListItem[];
-  meta: UsuariosListMeta;
+export interface EmpresaProveedorRequest {
+  proveedorEmision: EmpresaProveedorEmision;
+  endpointEnvio?: string;
 }
 
-export interface UpdateEmpresaEstadoPayload {
-  estado: 'ACTIVO' | 'INACTIVO';
+export interface EmpresaCredencialesRequest {
+  usuarioSol: string;
+  claveSol: string;
+  confirmacionClaveSol: string;
+}
+
+export interface EmpresaValidacionEmisionResponse {
+  listaParaEmitir: boolean;
+  pendientes: string[];
+}
+
+export interface EmpresaConfiguracionResponse {
+  idEmpresa: number;
+  ambienteEmision: EmpresaAmbienteEmision;
+  proveedorEmision: EmpresaProveedorEmision;
+  endpointEnvio?: string;
+  tieneCertificado: boolean;
+  tieneCredenciales: boolean;
+  empresaActiva: boolean;
+  listaParaEmitir: boolean;
+}
+
+export interface CertificadoValidacionResponse {
+  valido: boolean;
+  fechaInicio?: string;
+  fechaVencimiento?: string;
+  mensaje: string;
 }

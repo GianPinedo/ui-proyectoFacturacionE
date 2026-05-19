@@ -1,0 +1,24 @@
+<app-ui-card>
+  <div class="space-y-4">
+    <div class="flex items-center justify-between gap-3">
+      <h4 class="text-base font-bold text-primary">Configuración de emisión electrónica</h4>
+      <app-status-badge [status]="listaLabel" />
+    </div>
+
+    <div class="grid gap-3 text-sm md:grid-cols-2">
+      <div><span class="text-muted">Ambiente:</span> <strong class="text-primary">{{ empresa().ambienteEmision }}</strong></div>
+      <div><span class="text-muted">Proveedor:</span> <strong class="text-primary">{{ empresa().proveedorEmision }}</strong></div>
+      <div><span class="text-muted">Endpoint:</span> <strong class="text-primary">{{ empresa().endpointEnvio || '-' }}</strong></div>
+      <div><span class="text-muted">Credenciales:</span> <strong class="text-primary">{{ empresa().tieneCredenciales ? 'Sí' : 'No' }}</strong></div>
+      <div><span class="text-muted">Certificado:</span> <strong class="text-primary">{{ empresa().tieneCertificado ? 'Sí' : 'No' }}</strong></div>
+      <div><span class="text-muted">Lista para emitir:</span> <strong class="text-primary">{{ empresa().listaParaEmitir ? 'Sí' : 'No' }}</strong></div>
+    </div>
+
+    <div class="flex flex-wrap justify-end gap-3 border-t border-border/70 pt-4">
+      <app-ui-button type="button" variant="secondary" [disabled]="actionLoading()" (click)="ambienteRequested.emit()">Configurar ambiente</app-ui-button>
+      <app-ui-button type="button" variant="secondary" [disabled]="actionLoading()" (click)="proveedorRequested.emit()">Configurar proveedor</app-ui-button>
+      <app-ui-button type="button" variant="secondary" [disabled]="actionLoading()" (click)="credencialesRequested.emit()">Registrar credenciales</app-ui-button>
+      <app-ui-button type="button" [disabled]="actionLoading()" (click)="validarEmisionRequested.emit()">Validar emisión</app-ui-button>
+    </div>
+  </div>
+</app-ui-card>
