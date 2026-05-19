@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
-import { LucideAngularModule, Menu } from 'lucide-angular';
+import { LucideAngularModule, CircleHelp, Menu } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth.service';
 import { UserMenuComponent } from '../../shared/components/user-menu/user-menu';
 
@@ -14,6 +14,7 @@ import { UserMenuComponent } from '../../shared/components/user-menu/user-menu';
 export class TopbarComponent {
   @Output() readonly menuRequested = new EventEmitter<void>();
   readonly menuIcon = Menu;
+  readonly faqIcon = CircleHelp;
 
   constructor(
     private readonly authService: AuthService,
@@ -26,6 +27,10 @@ export class TopbarComponent {
 
   openProfile(): void {
     this.router.navigateByUrl('/mi-perfil');
+  }
+
+  openFaq(): void {
+    this.router.navigateByUrl('/faq');
   }
 
   async logout(): Promise<void> {

@@ -9,5 +9,16 @@
 		<lucide-angular [img]="menuIcon" [size]="18" />
 	</button>
 
+	<button
+		type="button"
+		class="mr-3 inline-flex h-10 items-center gap-2 rounded-xl border border-border px-3 text-sm font-medium text-primary transition hover:bg-page"
+		(click)="openFaq()"
+		aria-label="Abrir preguntas frecuentes"
+		title="FAQ"
+	>
+		<lucide-angular [img]="faqIcon" [size]="16" />
+		<span class="hidden sm:inline">FAQ</span>
+	</button>
+
 	<app-user-menu (profileRequested)="openProfile()" (logoutRequested)="logout()" />
 </header>

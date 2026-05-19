@@ -96,6 +96,10 @@ export const routes: Routes = [
 				path: 'mi-perfil',
 				loadComponent: () => import('./features/mi-perfil/mi-perfil').then((m) => m.MiPerfilComponent),
 			},
+			{
+				path: 'faq',
+				loadComponent: () => import('./features/faq/faq').then((m) => m.FaqComponent),
+			},
 		],
 	},
 	{
