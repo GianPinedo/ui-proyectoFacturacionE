@@ -162,6 +162,10 @@ export class UsuariosService {
     return this.http.get<ModulosPermisosRolResponse>(`${environment.apiBaseUrl}/modulos/permisos/rol/${rolId}`);
   }
 
+  getMisPermisosModulos(): Observable<ModulosPermisosRolResponse> {
+    return this.http.get<ModulosPermisosRolResponse>(`${environment.apiBaseUrl}/modulos/mis-permisos`);
+  }
+
   getModulos(params: ModulosListParams): Observable<ModulosListResponse> {
     let httpParams = new HttpParams()
       .set('page', params.page)
