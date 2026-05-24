@@ -1,0 +1,28 @@
+<app-ui-card>
+  <div class="space-y-4">
+    <div class="flex items-center justify-between gap-3">
+      <h4 class="text-base font-bold text-primary">Datos tributarios</h4>
+      <app-status-badge [status]="estadoLabel" />
+    </div>
+
+    <div class="grid gap-3 text-sm md:grid-cols-2">
+      <div><span class="text-muted">RUC:</span> <strong class="text-primary">{{ empresa().ruc }}</strong></div>
+      <div><span class="text-muted">Razón social:</span> <strong class="text-primary">{{ empresa().razonSocial }}</strong></div>
+      <div><span class="text-muted">Nombre comercial:</span> <strong class="text-primary">{{ empresa().nombreComercial || '-' }}</strong></div>
+      <div><span class="text-muted">Dirección fiscal:</span> <strong class="text-primary">{{ empresa().direccion }}</strong></div>
+      <div><span class="text-muted">Ubigeo:</span> <strong class="text-primary">{{ empresa().ubigeo || '-' }}</strong></div>
+      <div><span class="text-muted">Departamento:</span> <strong class="text-primary">{{ empresa().departamento || '-' }}</strong></div>
+      <div><span class="text-muted">Provincia:</span> <strong class="text-primary">{{ empresa().provincia || '-' }}</strong></div>
+      <div><span class="text-muted">Distrito:</span> <strong class="text-primary">{{ empresa().distrito || '-' }}</strong></div>
+      <div><span class="text-muted">Correo:</span> <strong class="text-primary">{{ empresa().correo || '-' }}</strong></div>
+      <div><span class="text-muted">Teléfono:</span> <strong class="text-primary">{{ empresa().telefono || '-' }}</strong></div>
+    </div>
+
+    <div class="flex flex-wrap justify-end gap-3 border-t border-border/70 pt-4">
+      <app-ui-button type="button" variant="secondary" [disabled]="actionLoading()" (click)="editRequested.emit()">Editar datos</app-ui-button>
+      <app-ui-button type="button" [disabled]="actionLoading()" (click)="toggleEstadoRequested.emit()">
+        {{ empresa().estado === 'ACTIVO' ? 'Desactivar' : 'Activar' }}
+      </app-ui-button>
+    </div>
+  </div>
+</app-ui-card>

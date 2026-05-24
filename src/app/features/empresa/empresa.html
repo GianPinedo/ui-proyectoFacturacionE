@@ -1,1 +1,107 @@
-<app-module-page [title]="title" [subtitle]="subtitle" [columns]="columns" [rows]="rows" buttonLabel="Nuevo" />
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+    <app-page-title [title]="title" [subtitle]="subtitle" />
+
+    <div class="flex flex-wrap justify-end gap-2">
+      @if (!loading() && !hasEmpresa() && !error()) {
+        <app-ui-button type="button" (click)="openEmpresaModal()">Registrar empresa</app-ui-button>
+      }
+
+      @if (!loading() && hasEmpresa()) {
+        <app-ui-button type="button" variant="secondary" [disabled]="actionLoading()" (click)="openEmpresaModal()">Editar datos</app-ui-button>
+        <app-ui-button type="button" [disabled]="actionLoading()" (click)="onValidarEmisionRequested()">Validar emisión</app-ui-button>
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="grid gap-4 xl:grid-cols-2">
+      @for (_ of [1, 2, 3, 4]; track $index) {
+        <app-ui-card>
+          <div class="space-y-3">
+            <div class="h-5 w-48 animate-pulse rounded bg-slate-200"></div>
+            <app-skeleton height="lg" />
+            <app-skeleton height="lg" />
+          </div>
+        </app-ui-card>
+      }
+    </div>
+  } @else if (error()) {
+    <app-ui-card>
+      <div class="flex flex-col items-center gap-3 py-8 text-center">
+        <p class="text-base font-semibold text-primary">No se pudo cargar la empresa</p>
+        <p class="text-sm text-muted">{{ error() }}</p>
+        <app-ui-button type="button" (click)="retryLoad()">Reintentar</app-ui-button>
+      </div>
+    </app-ui-card>
+  } @else if (!hasEmpresa()) {
+    <app-ui-card>
+      <div class="mx-auto flex max-w-xl flex-col items-center gap-3 py-10 text-center">
+        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <lucide-angular [img]="buildingIcon" [size]="28" />
+        </div>
+        <h3 class="text-lg font-bold text-primary">No hay empresa emisora registrada</h3>
+        <p class="text-sm text-muted">Registra los datos tributarios de tu empresa para empezar a emitir comprobantes electrónicos.</p>
+        <app-ui-button type="button" (click)="openEmpresaModal()">Registrar empresa</app-ui-button>
+      </div>
+    </app-ui-card>
+  } @else {
+    <div class="grid gap-4 xl:grid-cols-2">
+      <app-empresa-info-card [empresa]="empresa()!" [actionLoading]="actionLoading()" (editRequested)="openEmpresaModal()" (toggleEstadoRequested)="onToggleEstadoRequested()" />
+
+      <app-empresa-configuracion-card
+        [empresa]="empresa()!"
+        [actionLoading]="actionLoading()"
+        (ambienteRequested)="onConfigurarAmbienteRequested()"
+        (proveedorRequested)="onConfigurarProveedorRequested()"
+        (credencialesRequested)="openCredencialesModal()"
+        (validarEmisionRequested)="onValidarEmisionRequested()"
+      />
+
+      <app-empresa-certificado-card
+        [empresa]="empresa()!"
+        [validacion]="certificadoValidacion()"
+        [actionLoading]="actionLoading()"
+        (cargarRequested)="openCertificadoModal()"
+        (validarRequested)="onValidarCertificadoRequested()"
+      />
+
+      <app-empresa-logo-card
+        [empresa]="empresa()!"
+        [actionLoading]="actionLoading()"
+        (uploadRequested)="onUploadLogoRequested($event)"
+        (deleteRequested)="onDeleteLogoRequested()"
+      />
+    </div>
+
+    <app-empresa-validacion-panel [empresa]="empresa()!" [validacion]="validacion()" [loading]="validacionLoading()" />
+  }
+
+  @if (empresaModalOpen()) {
+    <app-empresa-form-modal
+      [mode]="empresaModalMode()"
+      [initialData]="empresaModalInitialData()"
+      [isSaving]="empresaSaving()"
+      [isLoadingInitialData]="false"
+      (cancelRequested)="closeEmpresaModal()"
+      (saveRequested)="submitEmpresa($event)"
+    />
+  }
+
+  @if (credencialesModalOpen()) {
+    <app-empresa-credenciales-modal
+      [isSaving]="credencialesSaving()"
+      (cancelRequested)="closeCredencialesModal()"
+      (saveRequested)="submitCredenciales($event)"
+    />
+  }
+
+  @if (certificadoModalOpen()) {
+    <app-empresa-certificado-modal
+      [isSaving]="certificadoSaving()"
+      (cancelRequested)="closeCertificadoModal()"
+      (saveRequested)="submitCertificado($event)"
+    />
+  }
+</section>
+

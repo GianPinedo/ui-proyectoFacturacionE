@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sección FAQ — E-Factzy Perú</title>
+    <style>
+      :root {
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #475569;
+        --primary: #003b34;
+        --accent: #00ad8f;
+        --border: #e2e8f0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 32px 20px 56px;
+      }
+
+      .header {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      .title {
+        margin: 0;
+        color: var(--primary);
+        font-size: 28px;
+      }
+
+      .subtitle {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 16px;
+      }
+
+      .faq-item {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 12px;
+      }
+
+      h2 {
+        margin: 0 0 10px;
+        font-size: 18px;
+        color: var(--primary);
+      }
+
+      p {
+        margin: 0 0 8px;
+      }
+
+      ul {
+        margin: 0 0 8px 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="header">
+        <h1 class="title">Sección FAQ — E-Factzy Perú</h1>
+        <p class="subtitle">Preguntas frecuentes</p>
+      </section>
+
+      <section class="faq-item"><h2>1. ¿Qué es E-Factzy Perú?</h2><p>E-Factzy Perú es un sistema de facturación electrónica diseñado para registrar ventas, emitir comprobantes electrónicos y gestionar información relacionada con clientes, productos, series, correlativos, envíos a SUNAT/OSE, reportes y auditoría del sistema.</p></section>
+      <section class="faq-item"><h2>2. ¿Qué comprobantes puedo emitir desde el sistema?</h2><p>Desde el sistema se podrá emitir:</p><ul><li>Factura electrónica.</li><li>Boleta electrónica.</li><li>Nota de crédito electrónica.</li><li>Nota de débito electrónica.</li></ul><p>Además, el sistema permitirá generar los archivos necesarios como PDF, XML y CDR, según el flujo de emisión configurado.</p></section>
+      <section class="faq-item"><h2>3. ¿Qué necesito configurar antes de emitir comprobantes?</h2><p>Antes de emitir comprobantes electrónicos, debes tener configurados como mínimo:</p><ul><li>Empresa emisora.</li><li>RUC y razón social.</li><li>Dirección fiscal.</li><li>Series y correlativos.</li><li>Clientes.</li><li>Productos o servicios.</li><li>Certificado digital.</li><li>Credenciales de emisión.</li><li>Ambiente de emisión: Beta o Producción.</li><li>Proveedor de emisión: SUNAT u OSE.</li></ul></section>
+      <section class="faq-item"><h2>4. ¿Qué significa que la empresa esté “lista para emitir”?</h2><p>Significa que la empresa cuenta con la configuración mínima necesaria para emitir comprobantes electrónicos. El sistema validará si tiene datos tributarios completos, certificado digital, credenciales de emisión, proveedor configurado y estado activo.</p></section>
+      <section class="faq-item"><h2>5. ¿Qué pasa si la empresa no está lista para emitir?</h2><p>El sistema mostrará una lista de pendientes, por ejemplo:</p><ul><li>Falta cargar el certificado digital.</li><li>Faltan credenciales de emisión.</li><li>Falta configurar el proveedor SUNAT/OSE.</li><li>La empresa está inactiva.</li><li>Falta completar datos tributarios obligatorios.</li></ul><p>Mientras existan pendientes críticos, el sistema podrá bloquear la emisión de comprobantes.</p></section>
+      <section class="faq-item"><h2>6. ¿Puedo trabajar en modo pruebas antes de emitir en producción?</h2><p>Sí. El sistema permite configurar el ambiente de emisión como:</p><ul><li>Beta: para pruebas.</li><li>Producción: para emisión real.</li></ul><p>Se recomienda validar primero el flujo en ambiente Beta antes de pasar a Producción.</p></section>
+      <section class="faq-item"><h2>7. ¿Qué diferencia hay entre SUNAT y OSE?</h2><p>SUNAT permite el envío directo de comprobantes al servicio de emisión correspondiente.</p><p>OSE corresponde a un Operador de Servicios Electrónicos autorizado, que valida y comunica los comprobantes según la configuración del contribuyente.</p><p>El sistema permite configurar cualquiera de los dos proveedores según la necesidad de la empresa.</p></section>
+      <section class="faq-item"><h2>8. ¿Qué es el certificado digital?</h2><p>Es un archivo utilizado para firmar electrónicamente los comprobantes. Normalmente tiene formato .pfx o .p12 y requiere una clave de acceso.</p><p>El sistema lo usa para firmar los XML antes de enviarlos a SUNAT u OSE.</p></section>
+      <section class="faq-item"><h2>9. ¿El sistema guarda mi clave SOL o clave del certificado?</h2><p>Sí, pero deben almacenarse de forma segura y cifrada. Por seguridad:</p><ul><li>No se mostrarán en pantalla.</li><li>No se enviarán en respuestas del sistema.</li><li>No deben aparecer en reportes.</li><li>No deben registrarse en logs visibles.</li></ul></section>
+      <section class="faq-item"><h2>10. ¿Puedo registrar clientes con DNI y RUC?</h2><p>Sí. El sistema permite registrar clientes con distintos tipos de documento, como:</p><ul><li>DNI.</li><li>RUC.</li><li>Carnet de extranjería.</li><li>Pasaporte.</li><li>Consumidor final.</li></ul><p>Para emitir una factura electrónica, el cliente debe contar con RUC.</p></section>
+      <section class="faq-item"><h2>11. ¿Puedo registrar productos y servicios?</h2><p>Sí. El sistema permite registrar tanto productos como servicios, indicando datos como:</p><ul><li>Código interno.</li><li>Nombre.</li><li>Descripción.</li><li>Unidad de medida.</li><li>Precio unitario.</li><li>Afectación IGV.</li><li>Estado.</li></ul></section>
+      <section class="faq-item"><h2>12. ¿Qué es la afectación IGV?</h2><p>Es la condición tributaria aplicada al producto o servicio. Los valores básicos son:</p><ul><li>Gravado.</li><li>Exonerado.</li><li>Inafecto.</li></ul><p>Esta información se utiliza para calcular correctamente el subtotal, IGV y total del comprobante.</p></section>
+      <section class="faq-item"><h2>13. ¿Qué son las series y correlativos?</h2><p>Las series y correlativos permiten numerar los comprobantes emitidos. Por ejemplo:</p><ul><li>Factura: F001-00000001</li><li>Boleta: B001-00000001</li><li>Nota de crédito: FC01-00000001</li><li>Nota de débito: FD01-00000001</li></ul><p>El sistema controla que no se repitan los números.</p></section>
+      <section class="faq-item"><h2>14. ¿Puedo registrar una venta sin emitir inmediatamente el comprobante?</h2><p>Sí. El sistema puede permitir registrar una venta como borrador o pendiente, y luego emitir el comprobante desde el módulo correspondiente.</p><p>También puede configurarse la opción para emitir el comprobante inmediatamente al registrar la venta.</p></section>
+      <section class="faq-item"><h2>15. ¿Qué ocurre cuando emito un comprobante?</h2><p>El flujo general es:</p><ul><li>Se registra la venta.</li><li>Se genera el comprobante.</li><li>Se genera el XML.</li><li>Se firma digitalmente.</li><li>Se envía a SUNAT u OSE.</li><li>Se recibe una respuesta.</li><li>Se almacena el CDR.</li><li>Se genera el PDF.</li><li>Se puede enviar el comprobante por correo al cliente.</li></ul></section>
+      <section class="faq-item"><h2>16. ¿Qué significan los estados de un comprobante?</h2><p>Los estados principales pueden ser:</p><ul><li>Registrado: comprobante creado en el sistema.</li><li>Pendiente: aún no enviado o esperando respuesta.</li><li>Enviado: enviado a SUNAT/OSE.</li><li>Aceptado: validado correctamente.</li><li>Rechazado: no fue aceptado por errores.</li><li>Observado: aceptado con observaciones o advertencias.</li><li>Anulado: comprobante invalidado según el flujo correspondiente.</li></ul></section>
+      <section class="faq-item"><h2>17. ¿Qué hago si un comprobante fue rechazado?</h2><p>Debes revisar el mensaje de error retornado por SUNAT u OSE. El sistema mostrará el motivo del rechazo para que puedas corregir la información y volver a emitir o generar la nota correspondiente, según el caso.</p></section>
+      <section class="faq-item"><h2>18. ¿Puedo descargar el PDF, XML y CDR?</h2><p>Sí. Desde el módulo de comprobantes podrás descargar:</p><ul><li>PDF.</li><li>XML.</li><li>CDR.</li></ul><p>Estos archivos son importantes para respaldo, consulta y trazabilidad.</p></section>
+      <section class="faq-item"><h2>19. ¿Puedo enviar el comprobante por correo al cliente?</h2><p>Sí. El sistema puede enviar el comprobante al correo registrado del cliente, adjuntando el PDF y XML, según la configuración del módulo de correo.</p></section>
+      <section class="faq-item"><h2>20. ¿Qué son las notas de crédito y débito?</h2><p>Las notas de crédito y débito son documentos electrónicos relacionados con un comprobante emitido.</p><p>La nota de crédito se usa, por ejemplo, para anulación, devolución, descuento o corrección.</p><p>La nota de débito se usa para aumentar el valor de una operación, aplicar intereses, penalidades u otros cargos.</p></section>
+      <section class="faq-item"><h2>21. ¿Qué reportes puedo consultar?</h2><p>El sistema contempla reportes como:</p><ul><li>Reporte de ventas.</li><li>Reporte por cliente.</li><li>Reporte por comprobante.</li><li>Reporte por estado SUNAT/OSE.</li><li>Reporte tributario básico.</li><li>Exportación a Excel o PDF.</li></ul></section>
+      <section class="faq-item"><h2>22. ¿Qué información registra la auditoría?</h2><p>La auditoría registra operaciones importantes del sistema, como:</p><ul><li>Creación de usuarios.</li><li>Cambios en empresa emisora.</li><li>Emisión de comprobantes.</li><li>Cambios de estado.</li><li>Carga de certificados.</li><li>Configuración de credenciales.</li><li>Generación de notas.</li><li>Acciones críticas realizadas por usuarios.</li></ul><p>Esto permite mantener trazabilidad y control interno.</p></section>
+      <section class="faq-item"><h2>23. ¿Puedo crear diferentes usuarios?</h2><p>Sí. El sistema permite gestionar usuarios y roles. Los roles básicos son:</p><ul><li>Administrador.</li><li>Vendedor.</li><li>Consulta.</li><li>Soporte.</li></ul><p>Cada rol puede tener permisos diferentes según las funciones del sistema.</p></section>
+      <section class="faq-item"><h2>24. ¿Qué pasa si desactivo un usuario?</h2><p>Un usuario inactivo no podrá iniciar sesión ni realizar operaciones dentro del sistema. Sin embargo, sus registros históricos se mantienen para auditoría.</p></section>
+      <section class="faq-item"><h2>25. ¿Puedo usar el sistema para varias empresas?</h2><p>En la versión inicial se recomienda trabajar con una sola empresa emisora para simplificar el sistema. La opción multiempresa puede implementarse en una versión posterior.</p></section>
+    </main>
+  </body>
+</html>

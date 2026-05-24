@@ -1,0 +1,5 @@
+@media (min-width: 1024px) {
+	.admin-layout-content {
+		margin-left: var(--sidebar-offset, 280px);
+	}
+}

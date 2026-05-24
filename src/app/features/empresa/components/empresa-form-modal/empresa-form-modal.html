@@ -1,0 +1,97 @@
+<div class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/45 p-4 md:items-center" (click)="close()">
+  <div class="my-4 w-full max-w-5xl" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" [attr.aria-label]="isEditMode() ? 'Editar empresa' : 'Registrar empresa'">
+    <div class="flex max-h-[calc(100vh-2rem)] flex-col overflow-hidden rounded-3xl border border-border bg-[#EEF2F3] shadow-xl">
+      <div class="flex items-start justify-between gap-4 border-b border-slate-200 bg-white px-6 py-5 md:px-8">
+        <h3 class="text-2xl font-extrabold text-primary">{{ isEditMode() ? 'Editar empresa' : 'Registrar empresa' }}</h3>
+        <button
+          type="button"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-200"
+          (click)="close()"
+          aria-label="Cerrar"
+          title="Cerrar"
+        >
+          <lucide-angular [img]="closeIcon" [size]="20" />
+        </button>
+      </div>
+
+      <form class="grid gap-5 overflow-y-auto p-6 md:grid-cols-2 md:p-8" [formGroup]="form" (ngSubmit)="submit()">
+        @if (isLoadingInitialData()) {
+          @for (_ of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track $index) {
+            <div class="flex flex-col gap-2">
+              <div class="h-5 w-28 animate-pulse rounded bg-slate-200"></div>
+              <app-skeleton height="md" />
+            </div>
+          }
+        } @else {
+          @if (!isEditMode()) {
+            <label class="flex flex-col gap-2">
+              <span class="text-sm font-semibold text-slate-700">RUC <span class="text-rose-500">*</span></span>
+              <input formControlName="ruc" inputmode="numeric" maxlength="11" placeholder="20123456789" class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent" />
+              @if (form.controls.ruc.touched && form.controls.ruc.invalid) {
+                <p class="text-sm font-medium text-rose-600">El RUC debe tener exactamente 11 dígitos.</p>
+              }
+            </label>
+          }
+
+          <label class="flex flex-col gap-2">
+            <span class="text-sm font-semibold text-slate-700">Razón social <span class="text-rose-500">*</span></span>
+            <input formControlName="razonSocial" placeholder="EMPRESA DEMO S.A.C." class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent" />
+          </label>
+
+          <label class="flex flex-col gap-2">
+            <span class="text-sm font-semibold text-slate-700">Nombre comercial</span>
+            <input formControlName="nombreComercial" placeholder="Empresa Demo" class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent" />
+          </label>
+
+          <label class="flex flex-col gap-2">
+            <span class="text-sm font-semibold text-slate-700">Dirección fiscal <span class="text-rose-500">*</span></span>
+            <input formControlName="direccion" placeholder="Av. Principal 123" class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent" />
+          </label>
+
+          <label class="flex flex-col gap-2">
+            <span class="text-sm font-semibold text-slate-700">Ubigeo</span>
+            <input formControlName="ubigeo" inputmode="numeric" maxlength="6" placeholder="150101" class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent" />
+            @if (form.controls.ubigeo.touched && form.controls.ubigeo.invalid) {
+              <p class="text-sm font-medium text-rose-600">El ubigeo debe tener 6 dígitos.</p>
+            }
+          </label>
+
+          <label class="flex flex-col gap-2">
+            <span class="text-sm font-semibold text-slate-700">Departamento</span>
+            <input formControlName="departamento" placeholder="Lima" class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent" />
+          </label>
+
+          <label class="flex flex-col gap-2">
+            <span class="text-sm font-semibold text-slate-700">Provincia</span>
+            <input formControlName="provincia" placeholder="Lima" class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent" />
+          </label>
+
+          <label class="flex flex-col gap-2">
+            <span class="text-sm font-semibold text-slate-700">Distrito</span>
+            <input formControlName="distrito" placeholder="Miraflores" class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent" />
+          </label>
+
+          <label class="flex flex-col gap-2">
+            <span class="text-sm font-semibold text-slate-700">Correo</span>
+            <input formControlName="correo" type="email" placeholder="facturacion@empresa.com" class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent" />
+            @if (form.controls.correo.touched && form.controls.correo.invalid) {
+              <p class="text-sm font-medium text-rose-600">Ingresa un correo válido.</p>
+            }
+          </label>
+
+          <label class="flex flex-col gap-2">
+            <span class="text-sm font-semibold text-slate-700">Teléfono</span>
+            <input formControlName="telefono" placeholder="987654321" class="h-12 rounded-2xl border border-border bg-white px-4 text-base text-primary outline-none transition placeholder:text-slate-400 focus:border-accent" />
+          </label>
+        }
+
+        <div class="flex items-center justify-end gap-3 border-t border-slate-200 pt-5 md:col-span-2">
+          <app-ui-button type="button" variant="secondary" (click)="close()" [disabled]="isSaving() || isLoadingInitialData()">Cancelar</app-ui-button>
+          <app-ui-button type="submit" [disabled]="form.invalid || isSaving() || isLoadingInitialData()">
+            {{ isSaving() ? 'Guardando...' : (isEditMode() ? 'Guardar cambios' : 'Registrar empresa') }}
+          </app-ui-button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

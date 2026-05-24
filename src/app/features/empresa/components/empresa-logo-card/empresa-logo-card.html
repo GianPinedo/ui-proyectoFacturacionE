@@ -1,0 +1,35 @@
+<app-ui-card>
+  <div class="space-y-4">
+    <h4 class="text-base font-bold text-primary">Logo de empresa</h4>
+
+    @if (previewUrl()) {
+      <div class="flex justify-center rounded-xl border border-border/70 bg-white p-4">
+        <img [src]="previewUrl()" alt="Vista previa del logo" class="max-h-36 w-auto object-contain" />
+      </div>
+      <div class="rounded-lg bg-blue-50 p-3 text-sm text-blue-700 border border-blue-200">
+        <p class="font-semibold">Seleccionado para cargar</p>
+        <p class="text-xs mt-1">Haz clic en "Guardar" para confirmar la carga.</p>
+      </div>
+    } @else if (empresa().logoUrl) {
+      <div class="flex justify-center rounded-xl border border-border/70 bg-white p-4">
+        <img [src]="empresa().logoUrl" alt="Logo de empresa" class="max-h-36 w-auto object-contain" />
+      </div>
+    } @else {
+      <div class="rounded-xl border border-dashed border-border/70 bg-slate-50 p-6 text-center text-sm text-muted">
+        No hay logo cargado.
+      </div>
+    }
+
+    <div class="flex flex-wrap justify-end gap-3 border-t border-border/70 pt-4">
+      <label class="cursor-pointer">
+        <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp" class="hidden" (change)="onFileChange($event)" />
+        <span class="inline-flex h-11 items-center justify-center rounded-xl bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent/90">{{ previewUrl() ? 'Seleccionar otro' : 'Cargar logo' }}</span>
+      </label>
+      @if (previewUrl()) {
+        <app-ui-button type="button" variant="secondary" [disabled]="actionLoading()" (click)="clearPreview()">Cancelar</app-ui-button>
+      }
+      <app-ui-button type="button" variant="secondary" [disabled]="actionLoading() || (!empresa().logoUrl && !previewUrl())" (click)="deleteRequested.emit()">Eliminar logo</app-ui-button>
+    </div>
+  </div>
+</app-ui-card>
+

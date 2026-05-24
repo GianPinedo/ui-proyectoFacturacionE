@@ -1,0 +1,4 @@
+interface:
+  display_name: "Angular CRUD Pattern"
+  short_description: "CRUDs siguiendo usuarios-roles"
+  default_prompt: "Use $angular-crud-usuarios-roles-pattern to implement a new Angular CRUD screen following the usuarios-roles pattern."
