@@ -10,8 +10,13 @@ import { TopbarComponent } from '../topbar/topbar';
   styleUrl: './admin-layout.css',
 })
 export class AdminLayoutComponent {
+  private readonly bootstrapStartedAt = Date.now();
+  private readonly minimumBootstrapMs = 1000;
+  private bootstrapCompleted = false;
+
   isSidebarOpen = false;
   isSidebarCollapsed = false;
+  isBootstrapping = true;
 
   toggleSidebar(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
@@ -23,5 +28,20 @@ export class AdminLayoutComponent {
 
   onSidebarCollapsedChanged(isCollapsed: boolean): void {
     this.isSidebarCollapsed = isCollapsed;
+  }
+
+  onSidebarMenuReady(): void {
+    if (this.bootstrapCompleted) {
+      return;
+    }
+
+    this.bootstrapCompleted = true;
+
+    const elapsedMs = Date.now() - this.bootstrapStartedAt;
+    const remainingMs = Math.max(0, this.minimumBootstrapMs - elapsedMs);
+
+    window.setTimeout(() => {
+      this.isBootstrapping = false;
+    }, remainingMs);
   }
 }

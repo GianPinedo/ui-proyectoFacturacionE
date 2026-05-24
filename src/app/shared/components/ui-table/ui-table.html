@@ -22,7 +22,7 @@
 				}
 			} @else {
 				@for (row of rows; track $index) {
-					<tr>
+					<tr (click)="onRowClicked(row)" [class.cursor-pointer]="rowClickable">
 						@for (column of columns; track column.key) {
 							<td class="border-b border-border/70 px-4 py-3 text-sm text-primary">
 								@if (showActions && column.key === actionsColumnKey) {
@@ -31,7 +31,7 @@
 											<button
 												type="button"
 												class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-primary transition hover:bg-page"
-												(click)="requestEdit(row)"
+												(click)="$event.stopPropagation(); requestEdit(row)"
 												aria-label="Editar"
 												title="Editar"
 											>
@@ -43,7 +43,7 @@
 											<button
 												type="button"
 												class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-violet-700 transition hover:bg-violet-50"
-												(click)="requestViewModules(row)"
+												(click)="$event.stopPropagation(); requestViewModules(row)"
 												aria-label="Ver módulos"
 												title="Ver módulos"
 											>
@@ -55,7 +55,7 @@
 											<button
 												type="button"
 												class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-sky-700 transition hover:bg-sky-50"
-												(click)="requestResetPassword(row)"
+												(click)="$event.stopPropagation(); requestResetPassword(row)"
 												aria-label="Restablecer contraseña"
 												title="Restablecer contraseña"
 											>
@@ -71,7 +71,7 @@
 												[class.hover:bg-amber-50]="!isInactive(row)"
 												[class.text-emerald-700]="isInactive(row)"
 												[class.hover:bg-emerald-50]="isInactive(row)"
-												(click)="requestDisableAccess(row)"
+												(click)="$event.stopPropagation(); requestDisableAccess(row)"
 												[attr.aria-label]="isInactive(row) ? 'Activar acceso' : 'Desactivar acceso'"
 												[attr.title]="isInactive(row) ? 'Activar acceso' : 'Desactivar acceso'"
 											>
@@ -83,7 +83,7 @@
 											<button
 												type="button"
 												class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-rose-700 transition hover:bg-rose-50"
-												(click)="requestDelete(row)"
+												(click)="$event.stopPropagation(); requestDelete(row)"
 												[attr.aria-label]="deleteActionLabel"
 												[attr.title]="deleteActionLabel"
 											>

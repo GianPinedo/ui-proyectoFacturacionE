@@ -3,6 +3,7 @@
 		[isMobileOpen]="isSidebarOpen"
 		(closeRequested)="closeSidebar()"
 		(collapsedChanged)="onSidebarCollapsedChanged($event)"
+		(menuReady)="onSidebarMenuReady()"
 	/>
 
 	@if (isSidebarOpen) {
@@ -15,7 +16,7 @@
 	}
 
 	<div
-		class="admin-layout-content ml-0 flex min-w-0 flex-1 flex-col transition-all duration-200"
+		class="admin-layout-content ml-0 flex min-w-0 flex-1 flex-col"
 		[style.--sidebar-offset.px]="isSidebarCollapsed ? 80 : 280"
 	>
 		<app-topbar (menuRequested)="toggleSidebar()" />
@@ -24,4 +25,20 @@
 			<router-outlet />
 		</main>
 	</div>
+
+	@if (isBootstrapping) {
+		<div class="fixed inset-0 z-[100] flex items-center justify-center bg-white/95">
+			<div class="flex flex-col items-center gap-4">
+				<div class="flex items-center gap-3">
+					<div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-base font-bold text-white">EF</div>
+					<div>
+						<p class="text-lg font-semibold text-primary">E-Factzy</p>
+						<p class="text-sm font-medium text-accent">Perú</p>
+					</div>
+				</div>
+				<div class="h-14 w-14 animate-spin rounded-full border-4 border-slate-200 border-t-accent"></div>
+				<p class="text-sm font-medium text-primary">Cargando datos iniciales...</p>
+			</div>
+		</div>
+	}
 </div>

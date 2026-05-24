@@ -24,12 +24,14 @@ export class UiTableComponent {
   @Input() showViewModulesAction = false;
   @Input() showDeleteAction = false;
   @Input() deleteActionLabel = 'Eliminar';
+  @Input() rowClickable = false;
 
   @Output() readonly editRequested = new EventEmitter<Record<string, string>>();
   @Output() readonly resetPasswordRequested = new EventEmitter<Record<string, string>>();
   @Output() readonly disableAccessRequested = new EventEmitter<Record<string, string>>();
   @Output() readonly viewModulesRequested = new EventEmitter<Record<string, string>>();
   @Output() readonly deleteRequested = new EventEmitter<Record<string, string>>();
+  @Output() readonly rowClicked = new EventEmitter<Record<string, string>>();
 
   readonly editIcon = Pencil;
   readonly resetPasswordIcon = KeyRound;
@@ -60,6 +62,14 @@ export class UiTableComponent {
 
   requestDelete(row: Record<string, string>): void {
     this.deleteRequested.emit(row);
+  }
+
+  onRowClicked(row: Record<string, string>): void {
+    if (!this.rowClickable) {
+      return;
+    }
+
+    this.rowClicked.emit(row);
   }
 
   isInactive(row: Record<string, string>): boolean {

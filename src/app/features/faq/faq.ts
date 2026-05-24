@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { PageTitleComponent } from '../../shared/components/page-title/page-title';
 import { UiCardComponent } from '../../shared/components/ui-card/ui-card';
 
@@ -12,7 +11,7 @@ interface FaqItem {
 
 @Component({
   selector: 'app-faq',
-  imports: [RouterLink, PageTitleComponent, UiCardComponent],
+  imports: [PageTitleComponent, UiCardComponent],
   templateUrl: './faq.html',
   styleUrl: './faq.css',
 })

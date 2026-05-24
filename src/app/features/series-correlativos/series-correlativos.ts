@@ -372,16 +372,12 @@ export class SeriesCorrelativosComponent implements OnInit {
       })
       .subscribe({
         next: (response) => {
-          this.pagination.set(
-            response.meta
-              ? { ...response.meta, limit: currentLimit }
-              : {
-                  page,
-                  limit: currentLimit,
-                  total: response.data?.length ?? 0,
-                  totalPages: 1,
-                },
-          );
+          this.pagination.set({
+            page,
+            limit: currentLimit,
+            total: response.meta?.total ?? response.data?.length ?? 0,
+            totalPages: response.meta?.totalPages ?? 1,
+          });
 
           this.rows.set((response.data ?? []).map((item) => this.toTableRow(item)));
           this.isLoading.set(false);

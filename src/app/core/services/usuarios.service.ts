@@ -9,10 +9,13 @@ import {
   ChangePasswordResponse,
   CreateRolPayload,
   CreateRolResponse,
+  CreateModuloPayload,
+  CreateModuloResponse,
   CreateUsuarioPayload,
   CreateUsuarioResponse,
   ModulosListParams,
   ModulosListResponse,
+  ModuloDetailResponse,
   ResetUsuarioPasswordPayload,
   ResetUsuarioPasswordResponse,
   ModulosPermisosRolResponse,
@@ -30,6 +33,12 @@ import {
   UsuariosListResponse,
   UpdateUsuarioPayload,
   UpdateUsuarioResponse,
+  UpdateModuloPayload,
+  UpdateModuloResponse,
+  UpdateModuloEstadoPayload,
+  UpdateModuloEstadoResponse,
+  AuditoriaListParams,
+  AuditoriaListResponse,
 } from '../models/usuario.model';
 import { AuthService } from './auth.service';
 
@@ -176,6 +185,66 @@ export class UsuariosService {
     }
 
     return this.http.get<ModulosListResponse>(`${environment.apiBaseUrl}/modulos`, {
+      params: httpParams,
+    });
+  }
+
+  createModulo(payload: CreateModuloPayload): Observable<CreateModuloResponse> {
+    const xUserId = this.authService.getUserId() || '0';
+
+    return this.http.post<CreateModuloResponse>(`${environment.apiBaseUrl}/modulos`, payload, {
+      headers: {
+        'x-user-id': String(xUserId),
+      },
+    });
+  }
+
+  getModuloById(moduloId: string): Observable<ModuloDetailResponse> {
+    return this.http.get<ModuloDetailResponse>(`${environment.apiBaseUrl}/modulos/${moduloId}`);
+  }
+
+  updateModulo(moduloId: string, payload: UpdateModuloPayload): Observable<UpdateModuloResponse> {
+    const xUserId = this.authService.getUserId() || '0';
+
+    return this.http.put<UpdateModuloResponse>(`${environment.apiBaseUrl}/modulos/${moduloId}`, payload, {
+      headers: {
+        'x-user-id': String(xUserId),
+      },
+    });
+  }
+
+  updateModuloEstado(moduloId: string, payload: UpdateModuloEstadoPayload): Observable<UpdateModuloEstadoResponse> {
+    const xUserId = this.authService.getUserId() || '0';
+
+    return this.http.patch<UpdateModuloEstadoResponse>(`${environment.apiBaseUrl}/modulos/${moduloId}/estado`, payload, {
+      headers: {
+        'x-user-id': String(xUserId),
+      },
+    });
+  }
+
+  getAuditoria(params: AuditoriaListParams): Observable<AuditoriaListResponse> {
+    let httpParams = new HttpParams()
+      .set('page', params.page)
+      .set('size', params.size);
+
+    if (params.accion?.trim()) {
+      httpParams = httpParams.set('accion', params.accion.trim());
+    }
+
+    if (Number.isFinite(params.idUsuario)) {
+      httpParams = httpParams.set('idUsuario', Number(params.idUsuario));
+    }
+
+    if (params.fechaDesde?.trim()) {
+      httpParams = httpParams.set('fechaDesde', params.fechaDesde.trim());
+    }
+
+    if (params.fechaHasta?.trim()) {
+      httpParams = httpParams.set('fechaHasta', params.fechaHasta.trim());
+    }
+
+    return this.http.get<AuditoriaListResponse>(`${environment.apiBaseUrl}/auditoria`, {
       params: httpParams,
     });
   }

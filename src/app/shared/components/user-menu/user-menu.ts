@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, inject } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { Output } from '@angular/core';
@@ -14,6 +14,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class UserMenuComponent {
   private readonly authService = inject(AuthService);
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
 
   readonly chevronDownIcon = ChevronDown;
   readonly userIcon = User;
@@ -42,18 +43,21 @@ export class UserMenuComponent {
     this.closeMenu();
   }
 
-  @HostListener('document:click')
-  onDocumentClick(): void {
-    this.closeMenu();
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target;
+
+    if (!(target instanceof Node)) {
+      return;
+    }
+
+    if (!this.elementRef.nativeElement.contains(target)) {
+      this.closeMenu();
+    }
   }
 
-  onTriggerClick(event: Event): void {
-    event.stopPropagation();
+  onTriggerClick(): void {
     this.toggleMenu();
-  }
-
-  onMenuClick(event: Event): void {
-    event.stopPropagation();
   }
 
   get avatarInitials(): string {

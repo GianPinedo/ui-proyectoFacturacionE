@@ -183,6 +183,7 @@ export interface ModuloListItem {
   ruta: string;
   orden: number;
   estado: string;
+  createdAt?: string;
   idModuloPadre?: string | null;
   hijos?: ModuloListItem[];
 }
@@ -199,6 +200,57 @@ export interface ModulosListResponse {
   message?: string;
   data: ModuloListItem[];
   meta: UsuariosListMeta;
+}
+
+export interface CreateModuloPayload {
+  nombre: string;
+  descripcion?: string;
+  codigo: string;
+  icono: string;
+  ruta: string;
+  idModuloPadre?: number;
+  orden: number;
+}
+
+export interface CreateModuloResponse {
+  status?: string;
+  code?: number;
+  message?: string;
+  data?: Record<string, unknown>;
+}
+
+export interface ModuloDetailResponse {
+  status?: string;
+  code?: number;
+  message?: string;
+  data: ModuloListItem;
+}
+
+export interface UpdateModuloPayload {
+  nombre: string;
+  descripcion?: string;
+  icono: string;
+  ruta: string;
+  orden: number;
+}
+
+export interface UpdateModuloResponse {
+  status?: string;
+  code?: number;
+  message?: string;
+  data?: Record<string, unknown>;
+}
+
+export interface UpdateModuloEstadoPayload {
+  estado: 'ACTIVO' | 'INACTIVO';
+  motivo: string;
+}
+
+export interface UpdateModuloEstadoResponse {
+  status?: string;
+  code?: number;
+  message?: string;
+  data?: Record<string, unknown>;
 }
 
 export interface AsignarModulosRolPayload {
@@ -218,7 +270,8 @@ export interface AsignarModulosRolResponse {
 }
 
 export interface ModuloPermisoRolItem {
-  idModulo: string;
+  idModulo: string | number;
+  idModuloPadre?: string | number | null;
   nombre: string;
   codigo: string;
   descripcion: string;
@@ -230,6 +283,8 @@ export interface ModuloPermisoRolItem {
   permisoActualizacion: boolean;
   permisoBorracion: boolean;
   estado: string;
+  createdAt?: string;
+  hijos?: ModuloPermisoRolItem[];
 }
 
 export interface ModulosPermisosRolResponse {
@@ -237,4 +292,36 @@ export interface ModulosPermisosRolResponse {
   code?: number;
   message?: string;
   data: ModuloPermisoRolItem[];
+}
+
+export interface AuditoriaListItem {
+  idAuditoria: number;
+  idUsuario: number;
+  modulo: string;
+  accion: string;
+  descripcion: string;
+  entidad: string;
+  idEntidad: number;
+  valorAnterior?: unknown;
+  valorNuevo?: unknown;
+  ip?: string;
+  userAgent?: string;
+  fecha: string;
+}
+
+export interface AuditoriaListParams {
+  page: number;
+  size: number;
+  accion?: string;
+  idUsuario?: number;
+  fechaDesde?: string;
+  fechaHasta?: string;
+}
+
+export interface AuditoriaListResponse {
+  status?: string;
+  code?: number;
+  message?: string;
+  data: AuditoriaListItem[];
+  meta: UsuariosListMeta;
 }

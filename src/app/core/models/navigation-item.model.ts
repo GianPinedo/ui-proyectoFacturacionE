@@ -5,6 +5,7 @@ export interface NavigationItem {
   label: string;
   path: string;
   icon: LucideIconData;
+  children?: NavigationItem[];
   code?: string;
   description?: string;
   order?: number;

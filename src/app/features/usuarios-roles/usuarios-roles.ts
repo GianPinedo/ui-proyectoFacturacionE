@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { LucideAngularModule, Search } from 'lucide-angular';
 import Swal from 'sweetalert2';
@@ -23,10 +24,43 @@ import { UiTableComponent } from '../../shared/components/ui-table/ui-table';
 export class UsuariosRolesComponent implements OnInit {
   private readonly usuariosService = inject(UsuariosService);
   private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
 
-  readonly title = 'Usuarios y roles';
-  readonly subtitle = 'Gestiona usuarios, roles y accesos del sistema.';
+  readonly viewMode = signal<'both' | 'usuarios' | 'roles'>('both');
   readonly currentTab = signal<'usuarios' | 'roles'>('usuarios');
+  readonly showTabs = computed(() => this.viewMode() === 'both');
+  readonly title = computed(() => {
+    const mode = this.viewMode();
+
+    if (mode === 'usuarios') {
+      return 'Usuarios';
+    }
+
+    if (mode === 'roles') {
+      return 'Roles';
+    }
+
+    return 'Usuarios y roles';
+  });
+  readonly subtitle = computed(() => {
+    const mode = this.viewMode();
+
+    if (mode === 'usuarios') {
+      return 'Gestiona usuarios y accesos del sistema.';
+    }
+
+    if (mode === 'roles') {
+      return 'Gestiona roles y permisos del sistema.';
+    }
+
+    return 'Gestiona usuarios, roles y accesos del sistema.';
+  });
+  readonly showUsuariosSection = computed(
+    () => this.viewMode() === 'usuarios' || (this.viewMode() === 'both' && this.currentTab() === 'usuarios'),
+  );
+  readonly showRolesSection = computed(
+    () => this.viewMode() === 'roles' || (this.viewMode() === 'both' && this.currentTab() === 'roles'),
+  );
 
   readonly roles = signal<string[]>([]);
   readonly createRoleOptions = signal<Array<{ id: number; label: string }>>([]);
@@ -106,6 +140,13 @@ export class UsuariosRolesComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    const configuredTab = this.route.snapshot.data['tab'] as 'usuarios' | 'roles' | undefined;
+
+    if (configuredTab === 'usuarios' || configuredTab === 'roles') {
+      this.viewMode.set(configuredTab);
+      this.currentTab.set(configuredTab);
+    }
+
     this.loadRoles();
     this.loadUsuarios(0);
     this.loadRolesData(0);
@@ -462,16 +503,12 @@ export class UsuariosRolesComponent implements OnInit {
       })
       .subscribe({
         next: (response) => {
-          this.pagination.set(
-            response.meta
-              ? { ...response.meta, limit: currentLimit }
-              : {
-                  page,
-                  limit: currentLimit,
-                  total: response.data?.length ?? 0,
-                  totalPages: 1,
-                },
-          );
+          this.pagination.set({
+            page,
+            limit: currentLimit,
+            total: response.meta?.total ?? response.data?.length ?? 0,
+            totalPages: response.meta?.totalPages ?? 1,
+          });
 
           this.rows.set(response.data.map((item) => ({
             idUsuario: item.idUsuario,
@@ -846,7 +883,12 @@ export class UsuariosRolesComponent implements OnInit {
           }));
 
           this.rolesData.set(rolesFormatted);
-          this.rolesPagination.set(response.meta);
+          this.rolesPagination.set({
+            page,
+            limit: size,
+            total: response.meta?.total ?? response.data.length,
+            totalPages: response.meta?.totalPages ?? 1,
+          });
         },
         error: (error: unknown) => {
           this.rolesLoading.set(false);
@@ -1093,10 +1135,10 @@ export class UsuariosRolesComponent implements OnInit {
     this.selectedRoleName.set('');
   }
 
-  private buildRoleModulesTree(modules: ModuloPermisoRolItem[]): Array<ModuloPermisoRolItem & { idModuloPadre?: string | null; hijos: ModuloPermisoRolItem[] }> {
+  private buildRoleModulesTree(modules: ModuloPermisoRolItem[]): Array<ModuloPermisoRolItem & { idModuloPadre?: string | number | null; hijos: ModuloPermisoRolItem[] }> {
     const nodes = modules.map((module) => ({
       ...module,
-      idModuloPadre: (module as ModuloPermisoRolItem & { idModuloPadre?: string | null }).idModuloPadre ?? null,
+      idModuloPadre: (module as ModuloPermisoRolItem & { idModuloPadre?: string | number | null }).idModuloPadre ?? null,
       hijos: [] as ModuloPermisoRolItem[],
     }));
 
@@ -1110,7 +1152,7 @@ export class UsuariosRolesComponent implements OnInit {
       }
     }
 
-    const attached = new Set<string>();
+    const attached = new Set<string | number>();
 
     for (const node of nodes) {
       const explicitParentId = node.idModuloPadre;
@@ -1163,10 +1205,10 @@ export class UsuariosRolesComponent implements OnInit {
       return left.nombre.localeCompare(right.nombre);
     };
 
-    const sortTree = (items: Array<ModuloPermisoRolItem & { idModuloPadre?: string | null; hijos: ModuloPermisoRolItem[] }>): void => {
+    const sortTree = (items: Array<ModuloPermisoRolItem & { idModuloPadre?: string | number | null; hijos: ModuloPermisoRolItem[] }>): void => {
       items.sort(sortByOrder);
       for (const item of items) {
-        const childNodes = item.hijos as Array<ModuloPermisoRolItem & { idModuloPadre?: string | null; hijos: ModuloPermisoRolItem[] }>;
+        const childNodes = item.hijos as Array<ModuloPermisoRolItem & { idModuloPadre?: string | number | null; hijos: ModuloPermisoRolItem[] }>;
         if (childNodes.length > 0) {
           sortTree(childNodes);
         }
@@ -1178,14 +1220,14 @@ export class UsuariosRolesComponent implements OnInit {
     return roots;
   }
 
-  private flattenRoleModuleTree(tree: Array<ModuloPermisoRolItem & { idModuloPadre?: string | null; hijos: ModuloPermisoRolItem[] }>): Array<{ module: ModuloPermisoRolItem; level: number }> {
+  private flattenRoleModuleTree(tree: Array<ModuloPermisoRolItem & { idModuloPadre?: string | number | null; hijos: ModuloPermisoRolItem[] }>): Array<{ module: ModuloPermisoRolItem; level: number }> {
     const rows: Array<{ module: ModuloPermisoRolItem; level: number }> = [];
 
-    const traverse = (nodes: Array<ModuloPermisoRolItem & { idModuloPadre?: string | null; hijos: ModuloPermisoRolItem[] }>, level: number): void => {
+    const traverse = (nodes: Array<ModuloPermisoRolItem & { idModuloPadre?: string | number | null; hijos: ModuloPermisoRolItem[] }>, level: number): void => {
       for (const node of nodes) {
         rows.push({ module: node, level });
 
-        const children = node.hijos as Array<ModuloPermisoRolItem & { idModuloPadre?: string | null; hijos: ModuloPermisoRolItem[] }>;
+        const children = node.hijos as Array<ModuloPermisoRolItem & { idModuloPadre?: string | number | null; hijos: ModuloPermisoRolItem[] }>;
         if (children.length > 0) {
           traverse(children, level + 1);
         }

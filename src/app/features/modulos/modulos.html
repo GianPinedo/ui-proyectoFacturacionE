@@ -1,0 +1,128 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+    <app-page-title [title]="title" [subtitle]="subtitle" />
+    <app-ui-button type="button" (click)="openCreateForm()">Nuevo módulo</app-ui-button>
+  </div>
+
+  @if (isCreateModalOpen()) {
+    <div class="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 md:items-center" (click)="closeCreateForm()">
+      <div class="my-4 w-full max-w-2xl rounded-2xl bg-white p-6 shadow-lg" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Crear módulo">
+        <div class="mb-4 flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-semibold text-primary">{{ modalMode() === 'edit' ? 'Editar módulo' : 'Nuevo módulo' }}</h3>
+            <p class="text-sm text-muted">
+              {{ modalMode() === 'edit' ? 'Actualiza los datos del módulo.' : 'Completa los datos para registrar el módulo.' }}
+            </p>
+          </div>
+          <app-ui-button type="button" variant="secondary" [disabled]="isSavingCreate()" (click)="closeCreateForm()">Cerrar</app-ui-button>
+        </div>
+
+        @if (isLoadingInitialData()) {
+          <div class="py-8 text-center text-sm text-muted">Cargando datos del módulo...</div>
+        } @else {
+        <form class="grid gap-4 md:grid-cols-2" [formGroup]="createForm" (ngSubmit)="submitCreateForm()">
+          <label class="flex flex-col gap-2 md:col-span-1">
+            <span class="text-sm font-medium text-primary">Nombre *</span>
+            <input formControlName="nombre" class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition focus:border-accent" placeholder="Usuarios" />
+          </label>
+
+          <label class="flex flex-col gap-2 md:col-span-1">
+            <span class="text-sm font-medium text-primary">Código *</span>
+            <input formControlName="codigo" [readonly]="modalMode() === 'edit'" class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition focus:border-accent read-only:bg-slate-50 read-only:text-slate-500" placeholder="USUARIOS" />
+          </label>
+
+          <label class="flex flex-col gap-2 md:col-span-1">
+            <span class="text-sm font-medium text-primary">Ícono *</span>
+            <input formControlName="icono" class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition focus:border-accent" placeholder="person_add" />
+          </label>
+
+          <label class="flex flex-col gap-2 md:col-span-1">
+            <span class="text-sm font-medium text-primary">Orden *</span>
+            <input type="number" min="1" formControlName="orden" class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition focus:border-accent" />
+          </label>
+
+          <label class="flex flex-col gap-2 md:col-span-2">
+            <span class="text-sm font-medium text-primary">Ruta *</span>
+            <input formControlName="ruta" class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition focus:border-accent" placeholder="/admin/usuarios" />
+          </label>
+
+          <label class="flex flex-col gap-2 md:col-span-2">
+            <span class="text-sm font-medium text-primary">Descripción</span>
+            <textarea formControlName="descripcion" rows="3" class="rounded-xl border border-border bg-white px-4 py-3 text-sm text-primary outline-none transition focus:border-accent" placeholder="Gestión de usuarios del sistema"></textarea>
+          </label>
+
+          <label class="flex flex-col gap-2 md:col-span-2">
+            <span class="text-sm font-medium text-primary">Módulo padre</span>
+            <select formControlName="idModuloPadre" [disabled]="modalMode() === 'edit'" class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition focus:border-accent disabled:bg-slate-50 disabled:text-slate-500">
+              <option value="">Sin padre</option>
+              @for (parent of parentOptions(); track parent.value) {
+                <option [value]="parent.value">{{ parent.label }}</option>
+              }
+            </select>
+          </label>
+
+          <div class="md:col-span-2 mt-2 flex justify-end gap-3">
+            <app-ui-button type="button" variant="secondary" [disabled]="isSavingCreate()" (click)="closeCreateForm()">Cancelar</app-ui-button>
+            <app-ui-button type="submit" [disabled]="isSavingCreate()">{{ isSavingCreate() ? 'Guardando...' : (modalMode() === 'edit' ? 'Actualizar módulo' : 'Guardar módulo') }}</app-ui-button>
+          </div>
+        </form>
+        }
+      </div>
+    </div>
+  }
+
+  <app-ui-card>
+    <form class="grid gap-4 md:grid-cols-[220px_auto_auto] md:items-end" [formGroup]="filtersForm" (ngSubmit)="onSearch()">
+      <label class="flex flex-col gap-2">
+        <span class="text-sm font-medium text-primary">Estado</span>
+        <select
+          formControlName="estado"
+          class="h-11 rounded-xl border border-border bg-white px-4 text-sm text-primary outline-none transition focus:border-accent"
+        >
+          <option value="">Todos</option>
+          <option value="ACTIVO">Activo</option>
+          <option value="INACTIVO">Inactivo</option>
+        </select>
+      </label>
+
+      <app-ui-button type="submit" [disabled]="isLoading()" title="Buscar" aria-label="Buscar">
+        Buscar <lucide-angular [img]="searchIcon" [size]="18" />
+      </app-ui-button>
+
+      <app-ui-button type="button" variant="secondary" [disabled]="isLoading()" (click)="clearFilters()">
+        Limpiar
+      </app-ui-button>
+    </form>
+  </app-ui-card>
+
+  <app-ui-card>
+    <app-ui-table
+      [columns]="columns"
+      [rows]="rows()"
+      [loading]="isLoading()"
+      [skeletonRows]="skeletonRows"
+      [showActions]="true"
+      [showEditAction]="true"
+      [showResetPasswordAction]="false"
+      [showDisableAccessAction]="true"
+      [showViewModulesAction]="false"
+      [showDeleteAction]="false"
+      actionsColumnKey="acciones"
+      statusColumnKey="estado"
+      emptyLabel="No se encontraron módulos."
+      (editRequested)="onEditRequested($event)"
+      (disableAccessRequested)="onDisableAccessRequested($event)"
+    />
+
+    <app-ui-pagination
+      [page]="pagination().page"
+      [totalPages]="pagination().totalPages"
+      [total]="pagination().total"
+      [pageSize]="filtersForm.controls.pageSize.value"
+      [pageSizeOptions]="pageSizeOptions"
+      [loading]="isLoading()"
+      (pageChange)="goToPage($event)"
+      (pageSizeChange)="onPageSizeChange($event)"
+    />
+  </app-ui-card>
+</section>

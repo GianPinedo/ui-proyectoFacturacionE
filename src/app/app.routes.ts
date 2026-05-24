@@ -29,8 +29,24 @@ export const routes: Routes = [
 			},
 			{
 				path: 'usuarios-roles',
+				pathMatch: 'full',
+				redirectTo: 'usuarios',
+			},
+			{
+				path: 'usuarios',
+				data: { tab: 'usuarios' },
 				loadComponent: () =>
 					import('./features/usuarios-roles/usuarios-roles').then((m) => m.UsuariosRolesComponent),
+			},
+			{
+				path: 'roles',
+				data: { tab: 'roles' },
+				loadComponent: () =>
+					import('./features/usuarios-roles/usuarios-roles').then((m) => m.UsuariosRolesComponent),
+			},
+			{
+				path: 'modulos',
+				loadComponent: () => import('./features/modulos/modulos').then((m) => m.ModulosComponent),
 			},
 			{
 				path: 'clientes',
